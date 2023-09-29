@@ -24,7 +24,7 @@ public:
     void process_data();
 
     Encoder enc[3];
-    uint8_t receive_uart1[22];
+    uint8_t receive_uart1[14];
     CRC_Hash crc{7};
     uint8_t sending_bytes[30];
     Odometry odom;
