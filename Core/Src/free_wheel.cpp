@@ -6,15 +6,19 @@
 #include "stm32f1xx_hal_uart.h"
 #include "tim.h"
 #include "usart.h"
-#include <cmath>
-#include <cstdint>
-#include <cstdio>
-#include <string.h>
-#include <qfplib-m3.h>
+// #include <cmath>
+// #include <cstdint>
+// #include <cstdio>
+// #include <string.h>
+// #include <qfplib-m3.h>
+#include <arm_math.h>
 
-#define xR 0.265  // 265
-#define yrR 0.224 // 224
-#define ylR 0.222 // 222
+// #define __COUNT__
+// #define __EACH__
+
+#define xR 0.265
+#define yrR 0.235
+#define ylR 0.221
 #define Wheel_Diameter 0.0574
 
 #define cm_per_ticks (M_PI * Wheel_Diameter / 4000.0)
@@ -31,9 +35,13 @@ uint8_t start_byte = START_BYTE, hash;
 
 // uint32_t omega_input_tick = 0;
 
+#ifdef __COUNT__
+int32_t temp[3];
+#endif
 
-
-// int32_t temp[3];
+#ifdef __EACH__
+float each[3];
+#endif
 
 // void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 // {
@@ -84,7 +92,7 @@ void Free_Wheel::init()
 {
     enc[0] = Encoder(&htim3, 4000); // back
     enc[1] = Encoder(&htim1, 4000); // right
-    enc[2] = Encoder(&htim2, 2260); // left // 
+    enc[2] = Encoder(&htim2, 4000); // left
 
     enc[0].init();
     enc[1].init();
@@ -100,7 +108,7 @@ void Free_Wheel::read_data()
 {
     xCnt = enc[0].get_count();
     yrCnt = -enc[1].get_count();
-    ylCnt = -enc[2].get_count();
+    ylCnt = enc[2].get_count();
 
     enc[0].reset_encoder_count();
     enc[1].reset_encoder_count();
@@ -113,9 +121,11 @@ void Free_Wheel::process_data()
     float rightY_dist = M_PI * Wheel_Diameter * (yrCnt) / enc[1].ppr;
     float leftY_dist = M_PI * Wheel_Diameter * (ylCnt) / enc[2].ppr;
 
-    // temp[0] += xCnt;
-    // temp[1] += yrCnt;
-    // temp[2] += ylCnt;
+#ifdef __COUNT__
+    temp[0] += xCnt;
+    temp[1] += yrCnt;
+    temp[2] += ylCnt;
+#endif
 
     float d_theta = (rightY_dist - leftY_dist) / (ylR + yrR);
 
@@ -125,16 +135,38 @@ void Free_Wheel::process_data()
 
     // ftheta += d_theta;
 
+    // float dy = leftY_dist + ylR * d_theta;
+
+    float dy = (rightY_dist * ylR + leftY_dist * yrR) / (ylR + yrR);
     float dx = backX_dist - xR * d_theta;
-    float dy = leftY_dist + ylR * d_theta;
-    odom.x += dx * qfp_fcos(odom.theta + d_theta / 2.0) - dy * qfp_fsin(odom.theta + d_theta / 2.0);
-    odom.y += dx * qfp_fsin(odom.theta + d_theta / 2.0) + dy * qfp_fcos(odom.theta + d_theta / 2.0);
+    odom.x += dx * arm_cos_f32(odom.theta + d_theta / 2.0) - dy * arm_sin_f32(odom.theta + d_theta / 2.0);
+    odom.y += dx * arm_sin_f32(odom.theta + d_theta / 2.0) + dy * arm_cos_f32(odom.theta + d_theta / 2.0);
+
+#ifdef __EACH__
+    each[0] += dx;
+    each[1] += dy;
+    each[2] += d_theta;
+#endif
+
+    // odom.x = round3(odom.x);
+    // odom.y = round3(odom.y);
 
     // d_yaw_filtered = 0.9 * d_yaw + 0.1 * d_theta;
 
     // if ((HAL_GetTick() - omega_input_tick) > 500)
     // {
     odom.theta += d_theta;
+
+    if (odom.theta > M_PI)
+    {
+        odom.theta -= 2 * M_PI;
+    }
+    else if (odom.theta < (-M_PI))
+    {
+        odom.theta += 2 * M_PI;
+    }
+
+    // odom.theta = round3(odom.theta);
     // }
     // else
     // {
@@ -170,8 +202,14 @@ void send_data()
         if ((HAL_GetTick() - last_uart_tick) > 50)
         {
             free_wheel.sending_bytes[0] = START_BYTE;
+
+#if defined __COUNT__
+            memcpy(&free_wheel.sending_bytes[1], (uint8_t *)(temp), 12);
+#elif defined __EACH__
+            memcpy(&free_wheel.sending_bytes[1], (uint8_t *)(each), 12);
+#else
             memcpy(&free_wheel.sending_bytes[1], (uint8_t *)(&free_wheel.odom), 12);
-            // memcpy(&free_wheel.sending_bytes[1], (uint8_t *)(temp), 12);
+#endif
             free_wheel.sending_bytes[13] = free_wheel.crc.get_Hash((uint8_t *)(&free_wheel.sending_bytes[1]), 12);
             HAL_UART_Transmit_DMA(&huart2, free_wheel.sending_bytes, 14);
             last_uart_tick = HAL_GetTick();
@@ -179,4 +217,9 @@ void send_data()
 
         last_tick = HAL_GetTick();
     }
+}
+
+inline float round3(float val)
+{
+    return (float)((int32_t)(val * 1000.0f)) / 1000.0f;
 }

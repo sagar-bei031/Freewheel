@@ -58,7 +58,9 @@ Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_exti.c \
 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c \
 Core/Src/system_stm32f1xx.c \
 Core/Src/dma.c \
-Core/Src/printf_config.c
+Drivers/CMSIS/DSP/Source/FastMathFunctions/arm_cos_f32.c \
+Drivers/CMSIS/DSP/Source/FastMathFunctions/arm_sin_f32.c
+
 
 # ASM sources
 ASM_SOURCES =  \
@@ -117,7 +119,8 @@ AS_DEFS =
 # C defines
 C_DEFS =  \
 -DUSE_HAL_DRIVER \
--DSTM32F103x6
+-DSTM32F103x6 \
+-DARM_MATH_CM3
 
 
 # AS includes
@@ -130,7 +133,8 @@ C_INCLUDES =  \
 -IDrivers/STM32F1xx_HAL_Driver/Inc \
 -IDrivers/STM32F1xx_HAL_Driver/Inc/Legacy \
 -IDrivers/CMSIS/Device/ST/STM32F1xx/Include \
--IDrivers/CMSIS/Include
+-IDrivers/CMSIS/Include  \
+-IDrivers/CMSIS/DSP/Include
 
 # CXX includes
 CXX_INCLUDES =  \

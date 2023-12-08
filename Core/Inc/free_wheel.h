@@ -35,6 +35,8 @@ public:
     // float ftheta;
 };
 
+inline float round3(float val);
+
 #endif
 
 #ifdef __cplusplus

@@ -1,6 +1,7 @@
 #include "encoder.hpp"
 #include "stm32f1xx.h"
 #include <math.h>
+#include "arm_math.h"
 
 int16_t Encoder::get_count(void) {
   int32_t count = henc->Instance->CNT;
