@@ -15,6 +15,19 @@ struct Odometry
     float theta = 0;
 };
 
+struct Twist
+{
+    float vx = 0;
+    float vy = 0;
+    float w = 0;
+};
+
+struct Robostate
+{
+    Odometry odometry;
+    Twist twist;
+};
+
 class Free_Wheel
 {
 public:
@@ -24,12 +37,16 @@ public:
     void process_data();
 
     Encoder enc[3];
-    Odometry odom;
+    Robostate robostate;
+    
     CRC_Hash crc{7};
-    uint8_t sending_bytes[14];
+    uint8_t sending_bytes[26];
     // uint8_t receive_uart1[3];
 
     int32_t xCnt, ylCnt, yrCnt;
+    float xRev, ylRev, yrRev;
+    float wx, wyr, wyl;
+
     // int32_t last_xCnt, last_ylCnt, last_yrCnt;
 
     // float ftheta;

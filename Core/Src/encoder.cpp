@@ -10,10 +10,10 @@ int16_t Encoder::get_count(void) {
   return count;
 }
 
-float Encoder::get_omega(void) {
+float Encoder::get_omega(uint16_t cpr) {
   int16_t count = get_count();
   int32_t sample_time = HAL_GetTick() - last_reset_time;
-  omega = (2.0 * M_PI) * count / (ppr * ((float)sample_time / 1000.0));
+  omega = 2.0f * (float)M_PI * count / (cpr * (sample_time / 1000.0f));
   return omega;
 }
 
