@@ -154,7 +154,7 @@ void send_data()
 
         uint32_t d_time = HAL_GetTick() - last_uart_tick;
 
-        if ((!is_transmitting) | (d_time > 100))
+        if (((d_time >= 50) && (!is_transmitting)) | (d_time > 100))
         {
             free_wheel.sending_bytes[0] = START_BYTE;
 
