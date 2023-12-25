@@ -13,7 +13,7 @@
 // #include <qfplib-m3.h>
 #include <arm_math.h>
 
-// #define __COUNT__
+#define __COUNT__
 // #define __EACH__
 
 #define xR 0.265
