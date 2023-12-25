@@ -8,16 +8,10 @@
 #include "usart.h"
 #include <arm_math.h>
 
-<<<<<<< HEAD
-#define xR 0.265
-#define yrR 0.235
-#define ylR 0.221
-=======
 
 #define xR 0.260
 #define yrR 0.255
 #define ylR 0.223
->>>>>>> test
 #define Wheel_Diameter 0.0574
 
 #define CPR_CW 4025
@@ -29,11 +23,6 @@ Free_Wheel free_wheel;
 
 uint8_t start_byte = START_BYTE, hash;
 
-<<<<<<< HEAD
-bool is_transmitting = false;
-
-=======
->>>>>>> test
 uint32_t last_led_tick = 0;
 
 bool is_transmitting = false;
@@ -123,14 +112,6 @@ void Free_Wheel::process_data()
 
     float d_theta = (rightY_dist - leftY_dist) / (ylR + yrR);
 
-<<<<<<< HEAD
-    float dy = (rightY_dist * ylR + leftY_dist * yrR) / (ylR + yrR);
-    float dx = backX_dist - xR * d_theta;
-    robostate.odometry.x += dx * arm_cos_f32(robostate.odometry.theta + d_theta / 2.0) - dy * arm_sin_f32(robostate.odometry.theta + d_theta / 2.0);
-    robostate.odometry.y += dx * arm_sin_f32(robostate.odometry.theta + d_theta / 2.0) + dy * arm_cos_f32(robostate.odometry.theta + d_theta / 2.0);
-
-=======
->>>>>>> test
     robostate.odometry.theta += d_theta;
 
     if (robostate.odometry.theta > M_PI)
@@ -142,8 +123,6 @@ void Free_Wheel::process_data()
         robostate.odometry.theta += 2 * M_PI;
     }
 
-<<<<<<< HEAD
-=======
     // float dy = leftY_dist + ylR * d_theta;
 
     float dy = (rightY_dist * ylR + leftY_dist * yrR) / (ylR + yrR);
@@ -151,7 +130,6 @@ void Free_Wheel::process_data()
     robostate.odometry.x += dx * arm_cos_f32(robostate.odometry.theta + d_theta / 2.0) - dy * arm_sin_f32(robostate.odometry.theta + d_theta / 2.0);
     robostate.odometry.y += dx * arm_sin_f32(robostate.odometry.theta + d_theta / 2.0) + dy * arm_cos_f32(robostate.odometry.theta + d_theta / 2.0);
 
->>>>>>> test
     robostate.twist.w = (yr_vel - yl_vel) / (yrR + ylR);
     float rel_vy = (yr_vel + yl_vel) / (yrR + ylR);
     float rel_vx = x_vel - robostate.twist.w * xR;
@@ -176,11 +154,7 @@ void send_data()
 
         uint32_t d_time = HAL_GetTick() - last_uart_tick;
 
-<<<<<<< HEAD
-        if ((!is_transmitting) | (d_time >= 500))
-=======
         if ((!is_transmitting) | (d_time > 100))
->>>>>>> test
         {
             free_wheel.sending_bytes[0] = START_BYTE;
 
