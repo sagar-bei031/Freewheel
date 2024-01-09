@@ -6,13 +6,14 @@
 class Encoder {
 public:
   TIM_HandleTypeDef *henc;
-  float omega;
+  uint16_t cpr;
+  double omega;
 
   uint32_t last_reset_time = 0;
 
-  Encoder(TIM_HandleTypeDef *_henc) : henc(_henc) {}
+  Encoder(TIM_HandleTypeDef *_henc, uint16_t _cpr) : henc(_henc), cpr(_cpr) {}
   Encoder() {}
-  float get_omega(uint16_t cpr);
+  double get_omega(void);
   void init(void);
   void reset_encoder_count(void);
   int16_t get_count(void);

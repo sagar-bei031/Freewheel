@@ -1,4 +1,6 @@
 #include "free_wheel.h"
+#include "encoder.hpp"
+
 #include "gpio.h"
 #include "stm32f1xx.h"
 #include "stm32f1xx_hal.h"
@@ -8,134 +10,87 @@
 #include "usart.h"
 #include <arm_math.h>
 
-
-#define xR 0.260
-#define yrR 0.255
-#define ylR 0.223
+#define xr_Radius 0.255
+#define xl_Radius 0.223
+#define y_Radius 0.260
 #define Wheel_Diameter 0.0574
-
-#define CPR_CW 4025
-#define CPR_ACW 3868
-
-#define START_BYTE (0XA5)
+#define CPR 4000
+#define START_BYTE 0XA5
 
 Free_Wheel free_wheel;
-
-uint8_t start_byte = START_BYTE, hash;
-
-uint32_t last_led_tick = 0;
-
 bool is_transmitting = false;
-
-void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
-{
-    if ((HAL_GetTick() - last_led_tick) > 20)
-    {
-        HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-        last_led_tick = HAL_GetTick();
-    }
-    is_transmitting = false;
-}
 
 Free_Wheel::Free_Wheel()
 {
-    robostate.odometry.x = 0;
-    robostate.odometry.y = 0;
-    robostate.odometry.theta = 0;
+    odometry.pose.x = 0;
+    odometry.pose.y = 0;
+    odometry.pose.theta = 0;
 }
 
 void Free_Wheel::init()
 {
-    enc[0] = Encoder(&htim3); // back
-    enc[1] = Encoder(&htim1); // right
-    enc[2] = Encoder(&htim2); // left
+    enc_[0] = Encoder(&htim1, CPR); // right
+    enc_[1] = Encoder(&htim2, CPR); // left
+    enc_[2] = Encoder(&htim3, CPR); // back
 
-    enc[0].init();
-    enc[1].init();
-    enc[2].init();
+    encoder.xr = &enc_[0];
+    encoder.xl = &enc_[1];
+    encoder.y = &enc_[2];
 }
 
 void Free_Wheel::read_data()
 {
-    xCnt = enc[0].get_count();   // (+) -> CW
-    yrCnt = -enc[1].get_count(); // (+) -> ACW
-    ylCnt = enc[2].get_count();  // (+) -> CW
+    xr_encoder_count = -encoder.xr->get_count();
+    xl_encoder_count = encoder.xl->get_count();
+    y_encoder_count = -encoder.y->get_count();
 
-    if (xCnt >= 0)
-    {
-        xRev = (float)xCnt / CPR_CW; // (+) -> CW
-        wx = enc[0].get_omega(CPR_CW);
-    }
-    else
-    {
-        xRev = (float)xCnt / CPR_ACW; // (-) -> ACW
-        wx = enc[0].get_omega(CPR_ACW);
-    }
+    xr_encoder_velocity = -encoder.xr->get_omega() * Wheel_Diameter / 2.0;
+    xl_encoder_velocity = encoder.xl->get_omega() * Wheel_Diameter / 2.0;
+    y_encoder_velocity = -encoder.y->get_omega() * Wheel_Diameter / 2.0;
 
-    if (yrCnt >= 0)
-    {
-        yrRev = (float)yrCnt / CPR_ACW; // (+) -> ACW
-        wyr = -enc[1].get_omega(CPR_ACW);
-    }
-    else
-    {
-        yrRev = (float)yrCnt / CPR_CW; // (-) -> CW
-        wyr = -enc[1].get_omega(CPR_CW);
-    }
-
-    if (ylCnt >= 0)
-    {
-        ylRev = (float)ylCnt / CPR_CW; // (+) -> CW
-        wyl = enc[2].get_omega(CPR_CW);
-    }
-    else
-    {
-        ylRev = (float)ylCnt / CPR_ACW; // (-) -> ACW
-        wyl = enc[2].get_omega(CPR_ACW);
-    }
-
-    enc[0].reset_encoder_count();
-    enc[1].reset_encoder_count();
-    enc[2].reset_encoder_count();
+    encoder.xr->reset_encoder_count();
+    encoder.xl->reset_encoder_count();
+    encoder.y->reset_encoder_count();
 }
 
 void Free_Wheel::process_data()
 {
+    double xr_encoder_distance = M_PI * Wheel_Diameter * xr_encoder_count / CPR;
+    double xl_encoder_distance = M_PI * Wheel_Diameter * xl_encoder_count / CPR;  
+    double y_encoder_distance = M_PI * Wheel_Diameter * y_encoder_count / CPR;  
 
-    float backX_dist = M_PI * Wheel_Diameter * xRev;
-    float rightY_dist = M_PI * Wheel_Diameter * yrRev;
-    float leftY_dist = M_PI * Wheel_Diameter * ylRev;
+    double d_theta = (xr_encoder_distance * xl_Radius - xl_encoder_distance * xr_Radius) / (xl_Radius + xr_Radius);
 
-    float x_vel = wx * Wheel_Diameter / 2.0f;
-    float yr_vel = wyr * Wheel_Diameter / 2.0f;
-    float yl_vel = wyl * Wheel_Diameter / 2.0f;
-
-    float d_theta = (rightY_dist - leftY_dist) / (ylR + yrR);
-
-    robostate.odometry.theta += d_theta;
-
-    if (robostate.odometry.theta > M_PI)
+    odometry.pose.theta += d_theta;
+    if (odometry.pose.theta > M_PI)
     {
-        robostate.odometry.theta -= 2 * M_PI;
+        odometry.pose.theta -= 2 * M_PI;
     }
-    else if (robostate.odometry.theta < (-M_PI))
+    else if (odometry.pose.theta < (-M_PI))
     {
-        robostate.odometry.theta += 2 * M_PI;
+        odometry.pose.theta += 2 * M_PI;
     }
 
-    // float dy = leftY_dist + ylR * d_theta;
+    double dx = (xr_encoder_distance * xl_Radius + xl_encoder_distance * xr_Radius) / (xl_Radius + xr_Radius);
+    double dy = y_encoder_distance - y_Radius * d_theta;
 
-    float dy = (rightY_dist * ylR + leftY_dist * yrR) / (ylR + yrR);
-    float dx = backX_dist - xR * d_theta;
-    robostate.odometry.x += dx * arm_cos_f32(robostate.odometry.theta + d_theta / 2.0) - dy * arm_sin_f32(robostate.odometry.theta + d_theta / 2.0);
-    robostate.odometry.y += dx * arm_sin_f32(robostate.odometry.theta + d_theta / 2.0) + dy * arm_cos_f32(robostate.odometry.theta + d_theta / 2.0);
+    float cos_value = arm_cos_f32(odometry.pose.theta + d_theta / 2.0);
+    float sin_value = arm_sin_f32(odometry.pose.theta + d_theta / 2.0);
 
-    robostate.twist.w = (yr_vel - yl_vel) / (yrR + ylR);
-    float rel_vy = (yr_vel + yl_vel) / (yrR + ylR);
-    float rel_vx = x_vel - robostate.twist.w * xR;
-    robostate.twist.vx = rel_vx * arm_cos_f32(robostate.odometry.theta + d_theta / 2.0) - rel_vx * arm_sin_f32(robostate.odometry.theta + d_theta / 2.0);
-    robostate.twist.vy = rel_vy * arm_sin_f32(robostate.odometry.theta + d_theta / 2.0) + rel_vy * arm_cos_f32(robostate.odometry.theta + d_theta / 2.0);
+    odometry.pose.x += dx * cos_value - dy * sin_value;
+    odometry.pose.y += dx * sin_value + dy * cos_value;
 
+    odometry.twist.vx = (xr_encoder_velocity * xl_Radius + xl_encoder_velocity * xr_Radius) / (xl_Radius + xr_Radius);
+    odometry.twist.vy = y_encoder_velocity;
+    odometry.twist.omega = (xr_encoder_velocity - xl_encoder_velocity) / (xr_Radius + xl_Radius) * 2.0 / Wheel_Diameter;
+
+    sending_odometry.x = odometry.pose.x;
+    sending_odometry.y = odometry.pose.y;
+    sending_odometry.theta = odometry.pose.theta;
+
+    sending_odometry.vx = odometry.twist.vx;
+    sending_odometry.vy = odometry.twist.vy;
+    sending_odometry.omega = odometry.twist.omega;
 }
 
 void send_data()
@@ -154,12 +109,14 @@ void send_data()
 
         uint32_t d_time = HAL_GetTick() - last_uart_tick;
 
-        if (((d_time >= 50) && (!is_transmitting)) | (d_time > 100))
+        if (((d_time > 33) && (!is_transmitting)) || (d_time > 100))
         {
             free_wheel.sending_bytes[0] = START_BYTE;
 
-            memcpy(free_wheel.sending_bytes + 1, (uint8_t *)(&free_wheel.robostate), 24);
+            memcpy(free_wheel.sending_bytes + 1, (uint8_t *)(&free_wheel.sending_odometry), 24);
+
             free_wheel.sending_bytes[25] = free_wheel.crc.get_Hash((uint8_t *)(free_wheel.sending_bytes + 1), 24);
+
             HAL_UART_Transmit_DMA(&huart2, free_wheel.sending_bytes, 26);
             last_uart_tick = HAL_GetTick();
             is_transmitting = true;
@@ -169,7 +126,9 @@ void send_data()
     }
 }
 
-inline float round3(float val)
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 {
-    return (float)((int32_t)(val * 1000.0f)) / 1000.0f;
+        HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+ 
+    is_transmitting = false;
 }

@@ -74,7 +74,6 @@ Core/Src/crc.cpp \
 Core/Src/free_wheel.cpp \
 
 
-
 #######################################
 # binaries
 #######################################
@@ -170,7 +169,7 @@ LDSCRIPT = STM32F103C6Tx_FLASH.ld
 # libraries
 LIBS = -lc -lm -lnosys -l:libarm_cortexM3l_math.a
 LIBDIR = -LDrivers/CMSIS/Lib/GCC/
-LDFLAGS = $(MCU) -u _printf_float -specs=nano.specs -specs=nosys.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
+LDFLAGS = $(MCU) -specs=nano.specs -specs=nosys.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
 
 # default action: build all
 all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin
@@ -225,5 +224,16 @@ clean:
 -include $(wildcard $(BUILD_DIR)/*.d)
 flash:
 	st-flash write $(BUILD_DIR)/$(TARGET).bin 0x8000000
+
+device = STM32F103C6
+$(BUILD_DIR)/jflash: $(BUILD_DIR)/$(TARGET).bin
+	@touch $@
+	@echo device $(device) > $@
+	@echo -e si 1'\n'speed 4000 >> $@
+	@echo loadbin $< 0x8000000 >> $@
+	@echo -e r'\n'g'\n'qc >> $@
+
+jflash: $(BUILD_DIR)/jflash
+	JLinkExe -commanderscript $<
 	
 # *** EOF ***
