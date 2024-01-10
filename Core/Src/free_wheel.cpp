@@ -1,6 +1,5 @@
 #include "free_wheel.h"
 #include "encoder.hpp"
-
 #include "gpio.h"
 #include "stm32f1xx.h"
 #include "stm32f1xx_hal.h"
@@ -36,6 +35,8 @@ void Free_Wheel::init()
     encoder.xr = &enc_[0];
     encoder.xl = &enc_[1];
     encoder.y = &enc_[2];
+
+    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
 }
 
 void Free_Wheel::read_data()
@@ -72,7 +73,7 @@ void Free_Wheel::process_data()
     }
 
     double dx = (xr_encoder_distance * xl_Radius + xl_encoder_distance * xr_Radius) / (xl_Radius + xr_Radius);
-    double dy = y_encoder_distance - y_Radius * d_theta;
+    double dy = y_encoder_distance + y_Radius * d_theta;
 
     float cos_value = arm_cos_f32(odometry.pose.theta + d_theta / 2.0);
     float sin_value = arm_sin_f32(odometry.pose.theta + d_theta / 2.0);
@@ -109,7 +110,7 @@ void send_data()
 
         uint32_t d_time = HAL_GetTick() - last_uart_tick;
 
-        if (((d_time > 33) && (!is_transmitting)) || (d_time > 100))
+        if ((d_time > 33))
         {
             free_wheel.sending_bytes[0] = START_BYTE;
 
@@ -117,6 +118,7 @@ void send_data()
 
             free_wheel.sending_bytes[25] = free_wheel.crc.get_Hash((uint8_t *)(free_wheel.sending_bytes + 1), 24);
 
+            __HAL_UART_FLUSH_DRREGISTER(&huart2);
             HAL_UART_Transmit_DMA(&huart2, free_wheel.sending_bytes, 26);
             last_uart_tick = HAL_GetTick();
             is_transmitting = true;
@@ -126,9 +128,13 @@ void send_data()
     }
 }
 
+
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 {
+    static uint32_t sending_tick;
+    if (HAL_GetTick() - sending_tick > 33)
+    {
         HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
- 
-    is_transmitting = false;
+        sending_tick = HAL_GetTick();
+    }
 }
