@@ -226,4 +226,15 @@ clean:
 flash:
 	st-flash write $(BUILD_DIR)/$(TARGET).bin 0x8000000
 	
+
+device = STM32F103C6
+$(BUILD_DIR)/jflash: $(BUILD_DIR)/$(TARGET).bin
+	@touch $@
+	@echo device $(device) > $@
+	@echo -e si 1'\n'speed 4000 >> $@
+	@echo loadbin $< 0x8000000 >> $@
+	@echo -e r'\n'g'\n'qc >> $@
+
+jflash: $(BUILD_DIR)/jflash
+	JLinkExe -commanderscript $<
 # *** EOF ***
