@@ -10,32 +10,22 @@
 
 struct Pose
 {
-    double x = 0;
-    double y = 0;
-    double theta = 0;
+    float x = 0;
+    float y = 0;
+    float theta = 0;
 };
 
 struct Twist
 {
-    double vx = 0;
-    double vy = 0;
-    double omega = 0;
+    float vx = 0;
+    float vy = 0;
+    float omega = 0;
 };
 
 struct Odometry
 {
     Pose pose;
     Twist twist;
-};
-
-struct Sending_Odometry
-{
-    float x;
-    float y;
-    float theta;
-    float vx;
-    float vy;
-    float omega;
 };
 
 struct Encoder_HandleType
@@ -58,7 +48,6 @@ public:
 
     Encoder_HandleType encoder;
     Odometry odometry;
-    Sending_Odometry sending_odometry;
     uint8_t sending_bytes[26];
     CRC_Hash crc{7};
 

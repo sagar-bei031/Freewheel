@@ -56,9 +56,9 @@ void Free_Wheel::read_data()
 
 void Free_Wheel::process_data()
 {
-    double xr_encoder_distance = M_PI * Wheel_Diameter * xr_encoder_count / CPR;
-    double xl_encoder_distance = M_PI * Wheel_Diameter * xl_encoder_count / CPR;  
-    double y_encoder_distance = M_PI * Wheel_Diameter * y_encoder_count / CPR;  
+    float xr_encoder_distance = M_PI * Wheel_Diameter * xr_encoder_count / CPR;
+    float xl_encoder_distance = M_PI * Wheel_Diameter * xl_encoder_count / CPR;  
+    float y_encoder_distance = M_PI * Wheel_Diameter * y_encoder_count / CPR;  
 
     double d_theta = (xr_encoder_distance * xl_Radius - xl_encoder_distance * xr_Radius) / (xl_Radius + xr_Radius);
 
@@ -72,8 +72,8 @@ void Free_Wheel::process_data()
         odometry.pose.theta += 2 * M_PI;
     }
 
-    double dx = (xr_encoder_distance * xl_Radius + xl_encoder_distance * xr_Radius) / (xl_Radius + xr_Radius);
-    double dy = y_encoder_distance + y_Radius * d_theta;
+    float dx = (xr_encoder_distance * xl_Radius + xl_encoder_distance * xr_Radius) / (xl_Radius + xr_Radius);
+    float dy = y_encoder_distance + y_Radius * d_theta;
 
     float cos_value = arm_cos_f32(odometry.pose.theta + d_theta / 2.0);
     float sin_value = arm_sin_f32(odometry.pose.theta + d_theta / 2.0);
@@ -84,14 +84,6 @@ void Free_Wheel::process_data()
     odometry.twist.vx = (xr_encoder_velocity * xl_Radius + xl_encoder_velocity * xr_Radius) / (xl_Radius + xr_Radius);
     odometry.twist.vy = y_encoder_velocity;
     odometry.twist.omega = (xr_encoder_velocity - xl_encoder_velocity) / (xr_Radius + xl_Radius) * 2.0 / Wheel_Diameter;
-
-    sending_odometry.x = odometry.pose.x;
-    sending_odometry.y = odometry.pose.y;
-    sending_odometry.theta = odometry.pose.theta;
-
-    sending_odometry.vx = odometry.twist.vx;
-    sending_odometry.vy = odometry.twist.vy;
-    sending_odometry.omega = odometry.twist.omega;
 }
 
 void send_data()
@@ -114,11 +106,11 @@ void send_data()
         {
             free_wheel.sending_bytes[0] = START_BYTE;
 
-            memcpy(free_wheel.sending_bytes + 1, (uint8_t *)(&free_wheel.sending_odometry), 24);
+            memcpy(free_wheel.sending_bytes + 1, (uint8_t *)(&free_wheel.odometry), 24);
 
             free_wheel.sending_bytes[25] = free_wheel.crc.get_Hash((uint8_t *)(free_wheel.sending_bytes + 1), 24);
 
-            __HAL_UART_FLUSH_DRREGISTER(&huart2);
+            // __HAL_UART_FLUSH_DRREGISTER(&huart2);
             HAL_UART_Transmit_DMA(&huart2, free_wheel.sending_bytes, 26);
             last_uart_tick = HAL_GetTick();
             is_transmitting = true;
