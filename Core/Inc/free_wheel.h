@@ -38,6 +38,8 @@ public:
 
     Encoder enc[3];
     Robostate robostate;
+    float x, y, theta;
+    float vx, vy, omega;
     
     CRC_Hash crc{7};
     uint8_t sending_bytes[26];
@@ -52,7 +54,7 @@ public:
     // float ftheta;
 };
 
-inline float round3(float val);
+float round3(float val);
 
 #endif
 
