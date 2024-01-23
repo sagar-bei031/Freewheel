@@ -16,7 +16,7 @@
 #include <memory.h>
 
 // Define __count for testing purposes
-#define __count
+// #define __count
 
 Free_Wheel free_wheel;
 
