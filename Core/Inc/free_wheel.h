@@ -18,22 +18,22 @@
 /**
  * @brief Radius of the back wheel in meter.
  */
-#define BACK_RADIUS 0.260f
+#define BACK_RADIUS 0.258f
 
 /**
  * @brief Radius of the right wheel in meter.
  */
-#define RIGHT_RADIUS 0.255f
+#define RIGHT_RADIUS 0.245f
 
 /**
  * @brief Radius of the left wheel in meter.
  */
-#define LEFT_RADIUS 0.223f
+#define LEFT_RADIUS 0.225f
 
 /**
  * @brief Diameter of the wheels in meter.
  */
-#define Wheel_Diameter 0.0574
+#define Wheel_Diameter 0.0574f
 
 /**
  * @brief Start byte for data transmission.
@@ -43,7 +43,7 @@
 /**
  * @brief Counts per revolution for encoders.
  */
-#define CPR 4000
+#define CPR 4000U
 
 /**
  * @brief Structure representing the pose (position and orientation) of the robot.

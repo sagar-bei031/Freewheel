@@ -138,9 +138,9 @@ void Free_Wheel::read_data()
 
 void Free_Wheel::process_data()
 {
-    float32_t back_dist = M_PI * Wheel_Diameter * back_count / CPR;
-    float32_t right_dist = M_PI * Wheel_Diameter * right_count / CPR;
-    float32_t left_dist = M_PI * Wheel_Diameter * left_count / CPR;
+    float32_t back_dist = PI * Wheel_Diameter * (float32_t)back_count / (float)CPR;
+    float32_t right_dist = PI * Wheel_Diameter * (float32_t)right_count / (float32_t)CPR;
+    float32_t left_dist = PI * Wheel_Diameter * (float32_t)left_count / (float32_t)CPR;
 
     float32_t back_vel = back_omega * Wheel_Diameter / 2.0f;
     float32_t right_vel = right_omega * Wheel_Diameter / 2.0f;
@@ -152,13 +152,13 @@ void Free_Wheel::process_data()
     // {
     //     float32_t d_imu_yaw;
 
-    //     if ((prev_imu_yaw > M_PI) && (prev_imu_yaw < M_PI) && (imu_yaw < -M_PI_2) && (imu_yaw > -M_PI))
+    //     if ((prev_imu_yaw > PI) && (prev_imu_yaw < PI) && (imu_yaw < -PI_2) && (imu_yaw > -PI))
     //     {
-    //         d_imu_yaw = (M_PI - prev_imu_yaw) + (M_PI + imu_yaw);
+    //         d_imu_yaw = (PI - prev_imu_yaw) + (PI + imu_yaw);
     //     }
-    //     else if ((prev_imu_yaw < -M_PI) && (prev_imu_yaw > -M_PI) && (imu_yaw > M_PI_2) && (imu_yaw < M_PI))
+    //     else if ((prev_imu_yaw < -PI) && (prev_imu_yaw > -PI) && (imu_yaw > PI_2) && (imu_yaw < PI))
     //     {
-    //         d_imu_yaw = -(M_PI + prev_imu_yaw) - (M_PI - imu_yaw);
+    //         d_imu_yaw = -(PI + prev_imu_yaw) - (PI - imu_yaw);
     //     }
     //     else
     //     {
@@ -179,13 +179,13 @@ void Free_Wheel::process_data()
 
     theta += d_theta;
 
-    if (theta > M_PI)
+    if (theta > PI)
     {
-        theta -= 2.0f * M_PI;
+        theta -= 2.0f * PI;
     }
-    else if (theta < (-M_PI))
+    else if (theta < (-PI))
     {
-        theta += 2.0f * M_PI;
+        theta += 2.0f * PI;
     }
 
     float32_t omega = (right_vel - left_vel) / (RIGHT_RADIUS + LEFT_RADIUS);
@@ -203,7 +203,7 @@ void Free_Wheel::process_data()
 
     robostate.twist.vx = back_omega;
     robostate.twist.vy = right_omega;
-    robostate.twist.w = left_omega;
+    robostate.twist.w = arm_sin_f32(PI/6);
 
     last_process_tick = now;
 #else
@@ -230,6 +230,8 @@ void send_data()
         if (HAL_GetTick() - loop_tick < 10)
             continue;
 
+        loop_tick = HAL_GetTick();
+
         free_wheel.read_data();
         free_wheel.process_data();
 
@@ -245,6 +247,5 @@ void send_data()
             transmit_tick = HAL_GetTick();
         }
 
-        loop_tick = HAL_GetTick();
     }
 }
