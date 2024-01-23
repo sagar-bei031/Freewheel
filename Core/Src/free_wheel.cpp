@@ -1,91 +1,181 @@
+/**
+ ******************************************************************************
+ * @file           free_wheel.cpp
+ * @brief          Application file for localizing a robot with free wheels.
+ * @author         Robotics Team, IOE Pulchowk Campus
+ * @date           2023
+ ******************************************************************************
+ */
+
 #include "free_wheel.h"
 #include "gpio.h"
-#include "stm32f1xx.h"
-#include "stm32f1xx_hal.h"
-#include "stm32f1xx_hal_tim.h"
-#include "stm32f1xx_hal_uart.h"
 #include "tim.h"
 #include "usart.h"
-#include <arm_math.h>
+#include "arm_math.h"
+#include "crc.hpp"
+#include <memory.h>
 
-#define xR 0.260
-#define yrR 0.255
-#define ylR 0.223
-#define Wheel_Diameter 0.0574
-
-#define CPR_CW 4000
-#define CPR_ACW 4000
-#define CPR 4000
-
-#define START_BYTE (0XA5)
+// Define __count for testing purposes
+#define __count
 
 Free_Wheel free_wheel;
 
-uint8_t start_byte = START_BYTE, hash;
+#ifdef __count
+int32_t bc = 0;
+int32_t rc = 0;
+int32_t lc = 0;
+#endif
 
-uint32_t last_led_tick = 0;
+float32_t imu_yaw = 0.0f;
+float32_t prev_imu_yaw = 0.0f;
+uint32_t imu_input_tick = 0;
 
-bool is_transmitting = false;
+uint8_t receiving_bytes[6];
+bool is_waiting_for_start_byte = true;
 
+CRC_Hash crc{7};
+
+/**
+ * @brief Callback function for handling the reception of data via UART.
+ * @param huart Pointer to the UART handle structure.
+ */
+// void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+// {
+//     __HAL_UART_FLUSH_DRREGISTER(huart);
+
+//     if (is_waiting_for_start_byte)
+//     {
+//         if (receiving_bytes[0] == START_BYTE)
+//         {
+//             is_waiting_for_start_byte = false;
+//             receiving_bytes[0] = 0x00;
+//             HAL_UART_Receive_DMA(&huart1, receiving_bytes + 1, 5);
+//         }
+//         else
+//         {
+//             HAL_UART_Receive_DMA(&huart1, receiving_bytes, 1);
+//         }
+//     }
+//     else
+//     {
+//         is_waiting_for_start_byte = true;
+//         HAL_UART_Receive_DMA(&huart1, receiving_bytes, 1);
+
+//         if (crc.get_Hash(receiving_bytes + 1, 4) == receiving_bytes[5])
+//         {
+//             memcpy((uint8_t *) &imu_yaw, receiving_bytes + 1, 4);
+//             imu_input_tick = HAL_GetTick();
+//         }
+//     }
+// }
+
+// /**
+//  * @brief Callback function for handling UART errors.
+//  * @param huart Pointer to the UART handle structure.
+//  */
+// void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
+// {
+//     __HAL_UART_FLUSH_DRREGISTER(huart);
+
+//     if (huart->Instance == huart1.Instance)
+//     {
+//         is_waiting_for_start_byte = true;
+//         HAL_UART_Receive_DMA(&huart1, receiving_bytes, 1);
+//     }
+// }
+
+/**
+ * @brief Callback function for handling the completion of UART transmission.
+ * @param huart Pointer to the UART handle structure.
+ */
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 {
-    if ((HAL_GetTick() - last_led_tick) > 20)
-    {
-        HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-        last_led_tick = HAL_GetTick();
-    }
-    is_transmitting = false;
+    HAL_UART_DMAStop(&huart2);
+    free_wheel.is_transmitting = false;
+
+    HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
 }
 
-Free_Wheel::Free_Wheel()
-{
-    x = y = theta = 0;
-}
-
+/**
+ * @brief Initializes the Free_Wheel object.
+ */
 void Free_Wheel::init()
 {
-    enc[0] = Encoder(&htim3); // back
-    enc[1] = Encoder(&htim1); // right
-    enc[2] = Encoder(&htim2); // left
+    back_enc.init();
+    right_enc.init();
+    left_enc.init();
 
-    enc[0].init();
-    enc[1].init();
-    enc[2].init();
+    // HAL_UART_Receive_DMA(&huart1, receiving_bytes, 1);
 }
 
+/**
+ * @brief Reads data from encoders and updates the robot state.
+ */
 void Free_Wheel::read_data()
 {
-    xCnt = enc[0].get_count();   // (+) -> CW
-    yrCnt = -enc[1].get_count(); // (+) -> ACW
-    ylCnt = enc[2].get_count();  // (+) -> CW
+    back_count = -back_enc.get_count();
+    right_count = -right_enc.get_count();
+    left_count = left_enc.get_count();
 
-    xRev = (float)xCnt / CPR; // (+) -> CW
-    wx = enc[0].get_omega(CPR);
+#ifdef __count
+    bc += back_count;
+    rc += right_count;
+    lc += left_count;
+#endif
 
-    yrRev = (float)yrCnt / CPR; // (+) -> ACW
-    wyr = -enc[1].get_omega(CPR);
+    back_omega = -back_enc.get_omega();
+    right_omega = -right_enc.get_omega();
+    left_omega = left_enc.get_omega();
 
-    ylRev = (float)ylCnt / CPR; // (-) -> ACW
-    wyl = enc[2].get_omega(CPR);
-
-
-    enc[0].reset_encoder_count();
-    enc[1].reset_encoder_count();
-    enc[2].reset_encoder_count();
+    back_enc.reset_encoder_count();
+    right_enc.reset_encoder_count();
+    left_enc.reset_encoder_count();
 }
+
+/**
+ * @brief Processes the collected data to update the robot's position and orientation.
+ */
 
 void Free_Wheel::process_data()
 {
+    float32_t back_dist = M_PI * Wheel_Diameter * back_count / CPR;
+    float32_t right_dist = M_PI * Wheel_Diameter * right_count / CPR;
+    float32_t left_dist = M_PI * Wheel_Diameter * left_count / CPR;
 
-    float backX_dist = M_PI * Wheel_Diameter * xRev;
-    float rightY_dist = M_PI * Wheel_Diameter * yrRev;
-    float leftY_dist = M_PI * Wheel_Diameter * ylRev;
+    float32_t back_vel = back_omega * Wheel_Diameter / 2.0f;
+    float32_t right_vel = right_omega * Wheel_Diameter / 2.0f;
+    float32_t left_vel = left_omega * Wheel_Diameter / 2.0f;
 
-    float x_vel = wx * Wheel_Diameter / 2.0f;
-    float yr_vel = wyr * Wheel_Diameter / 2.0f;
-    float yl_vel = wyl * Wheel_Diameter / 2.0f;
+    float32_t d_theta = (right_dist - left_dist) / (LEFT_RADIUS + RIGHT_RADIUS);
 
-    float d_theta = (rightY_dist - leftY_dist) / (ylR + yrR);
+    // if (HAL_GetTick() - imu_input_tick < 500U)
+    // {
+    //     float32_t d_imu_yaw;
+
+    //     if ((prev_imu_yaw > M_PI) && (prev_imu_yaw < M_PI) && (imu_yaw < -M_PI_2) && (imu_yaw > -M_PI))
+    //     {
+    //         d_imu_yaw = (M_PI - prev_imu_yaw) + (M_PI + imu_yaw);
+    //     }
+    //     else if ((prev_imu_yaw < -M_PI) && (prev_imu_yaw > -M_PI) && (imu_yaw > M_PI_2) && (imu_yaw < M_PI))
+    //     {
+    //         d_imu_yaw = -(M_PI + prev_imu_yaw) - (M_PI - imu_yaw);
+    //     }
+    //     else
+    //     {
+    //         d_imu_yaw = imu_yaw - prev_imu_yaw;
+    //     }
+
+    //     d_theta = 0.1f * d_theta + 0.9f * d_imu_yaw;
+    // }
+
+    float32_t dx = (right_dist * LEFT_RADIUS + left_dist * RIGHT_RADIUS) / (LEFT_RADIUS + RIGHT_RADIUS);
+    float32_t dy = back_dist + BACK_RADIUS * d_theta;
+
+    float32_t cos_value = arm_cos_f32(theta + d_theta / 2.0f);
+    float32_t sin_value = arm_sin_f32(theta + d_theta / 2.0f);
+
+    x += dx * cos_value - dy * sin_value;
+    y += dx * sin_value + dy * cos_value;
 
     theta += d_theta;
 
@@ -98,62 +188,63 @@ void Free_Wheel::process_data()
         theta += 2.0f * M_PI;
     }
 
-    // float dy = leftY_dist + ylR * d_theta;
+    float32_t omega = (right_vel - left_vel) / (RIGHT_RADIUS + LEFT_RADIUS);
+    float32_t vx = (right_vel * LEFT_RADIUS + left_vel * RIGHT_RADIUS) / (RIGHT_RADIUS + LEFT_RADIUS);
+    float32_t vy = back_vel + omega * BACK_RADIUS;
 
-    float dy = (rightY_dist * ylR + leftY_dist * yrR) / (ylR + yrR);
-    float dx = backX_dist - xR * d_theta;
+#ifdef __count
+    static uint32_t last_process_tick;
+    uint32_t now = HAL_GetTick();
+    uint16_t dt = now - last_process_tick;
 
-    x += dx * arm_cos_f32(theta + d_theta / 2.0f) - dy * arm_sin_f32(theta + d_theta / 2.0f);
-    y += dx * arm_sin_f32(theta + d_theta / 2.0f) + dy * arm_cos_f32(theta + d_theta / 2.0f);
+    robostate.pose.x = bc;
+    robostate.pose.y = rc;
+    robostate.pose.theta = lc;
 
-    omega = (yr_vel - yl_vel) / (yrR + ylR);
-    vy = (yr_vel + yl_vel) / (yrR + ylR);
-    vx = x_vel - omega * xR;
+    robostate.twist.vx = back_omega;
+    robostate.twist.vy = right_omega;
+    robostate.twist.w = left_omega;
 
-    robostate.odometry.x = y;
-    robostate.odometry.y = -x;
-    robostate.odometry.theta = theta;
+    last_process_tick = now;
+#else
+    robostate.pose.x = x;
+    robostate.pose.y = y;
+    robostate.pose.theta = theta;
 
-    robostate.twist.vx = vy;
-    robostate.twist.vy = -vx;
+    robostate.twist.vx = vx;
+    robostate.twist.vy = vy;
     robostate.twist.w = omega;
-
-    x = round3(x);
-    y = round3(y);
-    theta = round3(theta);
+#endif
 }
 
+/**
+ * @brief Continuously sends robot data via UART.
+ */
 void send_data()
 {
     free_wheel.init();
-    uint32_t last_tick = HAL_GetTick();
-    uint32_t last_uart_tick = last_tick;
+    uint32_t loop_tick = 0;
 
-    HAL_UART_Transmit_DMA(&huart2, free_wheel.sending_bytes, 26);
     while (1)
     {
-        if ((HAL_GetTick() - last_tick) < 10)
+        if (HAL_GetTick() - loop_tick < 10)
             continue;
 
         free_wheel.read_data();
         free_wheel.process_data();
 
-        uint32_t d_time = HAL_GetTick() - last_uart_tick;
-
-        if (((d_time >= 50) && (!is_transmitting)) | (d_time > 100))
+        static uint32_t transmit_tick;
+        if ((HAL_GetTick() - transmit_tick >= 50) && (!free_wheel.is_transmitting))
         {
             free_wheel.sending_bytes[0] = START_BYTE;
-
             memcpy(free_wheel.sending_bytes + 1, (uint8_t *)(&free_wheel.robostate), 24);
-            free_wheel.sending_bytes[25] = free_wheel.crc.get_Hash((uint8_t *)(free_wheel.sending_bytes + 1), 24);
-            last_uart_tick = HAL_GetTick();
+            free_wheel.sending_bytes[25] = crc.get_Hash((uint8_t *)(free_wheel.sending_bytes + 1), 24);
+
+            HAL_UART_Transmit_DMA(&huart2, free_wheel.sending_bytes, 26);
+            free_wheel.is_transmitting = true;
+            transmit_tick = HAL_GetTick();
         }
 
-        last_tick = HAL_GetTick();
+        loop_tick = HAL_GetTick();
     }
-}
-
-float round3(float val)
-{
-    return (float)((int32_t)(val * 1000.0f)) / 1000.0f;
 }
