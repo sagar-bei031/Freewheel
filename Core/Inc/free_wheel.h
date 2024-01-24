@@ -105,7 +105,7 @@ public:
      */
     void process_data();
 
-    Robostate robostate; /**< Robot state. */
+    Robostate robostate; /**< Robot position and twist. */
 
     Encoder back_enc{&htim3, CPR};  /**< Encoder for the back wheel. */
     Encoder right_enc{&htim1, CPR}; /**< Encoder for the right wheel. */
@@ -115,14 +115,17 @@ public:
     int32_t right_count; /**< Count from the right wheel encoder. */
     int32_t left_count; /**< Count from the left wheel encoder. */
 
+    // with respect to robot itself
     float32_t back_omega; /**< Angular velocity of the back wheel. */
     float32_t right_omega; /**< Angular velocity of the right wheel. */
     float32_t left_omega; /**< Angular velocity of the left wheel. */
 
-    float32_t x = 0.0f;     /**< X-coordinate of the robot. */
-    float32_t y = 0.0f;     /**< Y-coordinate of the robot. */
-    float32_t theta = 0.0f; /**< Orientation (angle in radians) of the robot. */
+    // with respect to gamefield
+    float32_t x = 0.0f;     /**< X-coordinate (meter) of the robot. */
+    float32_t y = 0.0f;     /**< Y-coordinate (meter) of the robot. */
+    float32_t theta = 0.0f; /**< Orientation (yaw angle in radians) of the robot. */
 
+    // start_byte:1, x:4, y:4, theta:4, vx:4, vy:4, omega:4, crc:1
     uint8_t sending_bytes[26]; /**< Buffer for storing data to be transmitted. */
     bool is_transmitting = false; /**< Flag indicating if data transmission is in progress. */
 };
@@ -134,6 +137,10 @@ extern "C"
 #endif
     /**
      * @brief Send data from the Free_Wheel object.
+     * 
+     * It uses free_wheel object to read, process and send data.
+     * It joins c program with cpp.
+     * It is called in main.
      */
     void send_data();
 #ifdef __cplusplus
