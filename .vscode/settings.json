@@ -2,6 +2,7 @@
     "files.associations": {
         "cmath": "cpp",
         "cstdio": "cpp",
-        "cstdint": "cpp"
+        "cstdint": "cpp",
+        "random": "cpp"
     }
 }

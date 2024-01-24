@@ -8,6 +8,7 @@
  */
 
 #include "free_wheel.h"
+#include "encoder.hpp"
 #include "gpio.h"
 #include "tim.h"
 #include "usart.h"

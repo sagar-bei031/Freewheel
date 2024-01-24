@@ -79,6 +79,9 @@ struct Robostate
  */
 class Free_Wheel
 {
+private:
+    Encoder enc_[3];
+
 public:
     /**
      * @brief Default constructor.
