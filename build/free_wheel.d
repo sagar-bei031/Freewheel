@@ -23,6 +23,9 @@ build/free_wheel.o: Core/Src/free_wheel.cpp Core/Inc/free_wheel.h \
  Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim.h \
  Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h \
  Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h \
+ Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pcd.h \
+ Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_ll_usb.h \
+ Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pcd_ex.h \
  Drivers/CMSIS/DSP/Include/arm_math.h Core/Inc/encoder.hpp \
  Core/Inc/gpio.h Core/Inc/tim.h Core/Inc/usart.h Core/Inc/crc.hpp
 Core/Inc/free_wheel.h:
@@ -54,6 +57,9 @@ Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pwr.h:
 Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim.h:
 Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h:
 Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h:
+Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pcd.h:
+Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_ll_usb.h:
+Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pcd_ex.h:
 Drivers/CMSIS/DSP/Include/arm_math.h:
 Core/Inc/encoder.hpp:
 Core/Inc/gpio.h:
