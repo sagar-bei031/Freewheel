@@ -219,7 +219,7 @@ void Free_Wheel::process_data()
     robostate.twist.vy = vy;
     robostate.twist.w = omega;
 
-    printf("count: %lu %lu %lu\n", total_back_count, total_right_count, total_left_count);
+    printf("count: %ld %ld %ld\n", total_back_count, total_right_count, total_left_count);
 }
 
 /**
