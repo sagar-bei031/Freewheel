@@ -7,7 +7,7 @@
         {
             "name": "Cortex Debug",
             "cwd": "${workspaceFolder}",
-            "executable": "${workspaceFolder}/build/freewheel_c8.elf",
+            "executable": "${workspaceFolder}/build/freewheel.elf",
             "request": "launch",
             "type": "cortex-debug",
             "runToEntryPoint": "main",

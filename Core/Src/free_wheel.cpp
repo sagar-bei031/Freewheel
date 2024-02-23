@@ -219,9 +219,7 @@ void Free_Wheel::process_data()
     robostate.twist.vy = vy;
     robostate.twist.w = omega;
 
-    robostate.count.back = total_back_count;
-    robostate.count.right = total_right_count;
-    robostate.count.left = total_left_count;
+    printf("count: %lu %lu %lu\n", total_back_count, total_right_count, total_left_count);
 }
 
 /**
@@ -248,10 +246,10 @@ void send_data()
         if ((HAL_GetTick() - transmit_tick >= 50) && (!free_wheel.is_transmitting))
         {
             free_wheel.sending_bytes[0] = START_BYTE;
-            memcpy(free_wheel.sending_bytes + 1, (uint8_t *)(&free_wheel.robostate), 36);
-            free_wheel.sending_bytes[37] = crc.get_Hash((uint8_t *)(free_wheel.sending_bytes + 1), 36);
+            memcpy(free_wheel.sending_bytes + 1, (uint8_t *)(&free_wheel.robostate), sizeof(Robostate));
+            free_wheel.sending_bytes[sizeof(Robostate)+1] = crc.get_Hash((uint8_t *)(free_wheel.sending_bytes + 1), sizeof(Robostate));
 
-            HAL_UART_Transmit_DMA(&huart2, free_wheel.sending_bytes, 38);
+            HAL_UART_Transmit_DMA(&huart2, free_wheel.sending_bytes, sizeof(Robostate)+2);
             free_wheel.is_transmitting = true;
             transmit_tick = HAL_GetTick();
         }

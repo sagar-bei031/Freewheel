@@ -1,4 +1,4 @@
-ARM GAS  /tmp/ccViP7hZ.s 			page 1
+ARM GAS  /tmp/cc0EliPV.s 			page 1
 
 
    1              		.cpu cortex-m3
@@ -58,7 +58,7 @@ ARM GAS  /tmp/ccViP7hZ.s 			page 1
   29:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** * @brief usbd core module
   30:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** * @{
   31:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** */
-ARM GAS  /tmp/ccViP7hZ.s 			page 2
+ARM GAS  /tmp/cc0EliPV.s 			page 2
 
 
   32:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** 
@@ -118,7 +118,7 @@ ARM GAS  /tmp/ccViP7hZ.s 			page 1
   86:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** * @param  id: Low level core index
   87:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** * @retval None
   88:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** */
-ARM GAS  /tmp/ccViP7hZ.s 			page 3
+ARM GAS  /tmp/cc0EliPV.s 			page 3
 
 
   89:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** USBD_StatusTypeDef USBD_Init(USBD_HandleTypeDef *pdev,
@@ -178,7 +178,7 @@ ARM GAS  /tmp/ccViP7hZ.s 			page 1
   59              	.L4:
  111:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****   }
  112:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** 
-ARM GAS  /tmp/ccViP7hZ.s 			page 4
+ARM GAS  /tmp/cc0EliPV.s 			page 4
 
 
  113:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****   /* Set Device initial State */
@@ -238,7 +238,7 @@ ARM GAS  /tmp/ccViP7hZ.s 			page 1
  125:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** * @param  pdev: device instance
  126:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** * @retval status: status
  127:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** */
-ARM GAS  /tmp/ccViP7hZ.s 			page 5
+ARM GAS  /tmp/cc0EliPV.s 			page 5
 
 
  128:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** USBD_StatusTypeDef USBD_DeInit(USBD_HandleTypeDef *pdev)
@@ -298,7 +298,7 @@ ARM GAS  /tmp/ccViP7hZ.s 			page 1
  141              	.LFE69:
  143              		.section	.text.USBD_RegisterClass,"ax",%progbits
  144              		.align	1
-ARM GAS  /tmp/ccViP7hZ.s 			page 6
+ARM GAS  /tmp/cc0EliPV.s 			page 6
 
 
  145              		.global	USBD_RegisterClass
@@ -358,7 +358,7 @@ ARM GAS  /tmp/ccViP7hZ.s 			page 1
  167:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****   }
  168:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** 
  169:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****   return status;
-ARM GAS  /tmp/ccViP7hZ.s 			page 7
+ARM GAS  /tmp/cc0EliPV.s 			page 7
 
 
  177              		.loc 1 169 3 is_stmt 1 view .LVU47
@@ -418,7 +418,7 @@ ARM GAS  /tmp/ccViP7hZ.s 			page 1
  219              		.thumb_func
  220              		.fpu softvfp
  222              	USBD_Stop:
-ARM GAS  /tmp/ccViP7hZ.s 			page 8
+ARM GAS  /tmp/cc0EliPV.s 			page 8
 
 
  223              	.LVL16:
@@ -478,7 +478,7 @@ ARM GAS  /tmp/ccViP7hZ.s 			page 1
  261              		.thumb
  262              		.thumb_func
  263              		.fpu softvfp
-ARM GAS  /tmp/ccViP7hZ.s 			page 9
+ARM GAS  /tmp/cc0EliPV.s 			page 9
 
 
  265              	USBD_RunTestMode:
@@ -538,7 +538,7 @@ ARM GAS  /tmp/ccViP7hZ.s 			page 1
  296              		@ args = 0, pretend = 0, frame = 0
  297              		@ frame_needed = 0, uses_anonymous_args = 0
  298              		.loc 1 226 1 is_stmt 0 view .LVU70
-ARM GAS  /tmp/ccViP7hZ.s 			page 10
+ARM GAS  /tmp/cc0EliPV.s 			page 10
 
 
  299 0000 08B5     		push	{r3, lr}
@@ -598,7 +598,7 @@ ARM GAS  /tmp/ccViP7hZ.s 			page 1
  337              	.LFE74:
  339              		.section	.text.USBD_ClrClassConfig,"ax",%progbits
  340              		.align	1
-ARM GAS  /tmp/ccViP7hZ.s 			page 11
+ARM GAS  /tmp/cc0EliPV.s 			page 11
 
 
  341              		.global	USBD_ClrClassConfig
@@ -658,7 +658,7 @@ ARM GAS  /tmp/ccViP7hZ.s 			page 1
  383              	USBD_LL_SetupStage:
  384              	.LVL30:
  385              	.LFB76:
-ARM GAS  /tmp/ccViP7hZ.s 			page 12
+ARM GAS  /tmp/cc0EliPV.s 			page 12
 
 
  255:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** 
@@ -718,7 +718,7 @@ ARM GAS  /tmp/ccViP7hZ.s 			page 1
  423 002a 11D0     		beq	.L29
  424 002c 2BB1     		cbz	r3, .L33
  272:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****   {
-ARM GAS  /tmp/ccViP7hZ.s 			page 13
+ARM GAS  /tmp/cc0EliPV.s 			page 13
 
 
  273:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****     case USB_REQ_RECIPIENT_DEVICE:
@@ -778,7 +778,7 @@ ARM GAS  /tmp/ccViP7hZ.s 			page 1
  455 0050 2946     		mov	r1, r5
  456 0052 2046     		mov	r0, r4
  457 0054 FFF7FEFF 		bl	USBD_StdEPReq
-ARM GAS  /tmp/ccViP7hZ.s 			page 14
+ARM GAS  /tmp/cc0EliPV.s 			page 14
 
 
  458              	.LVL37:
@@ -838,7 +838,7 @@ ARM GAS  /tmp/ccViP7hZ.s 			page 1
  309:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****     if (pdev->ep0_state == USBD_EP0_DATA_OUT)
  496              		.loc 1 309 5 view .LVU120
  497              		.loc 1 309 13 is_stmt 0 view .LVU121
-ARM GAS  /tmp/ccViP7hZ.s 			page 15
+ARM GAS  /tmp/cc0EliPV.s 			page 15
 
 
  498 000a D0F89422 		ldr	r2, [r0, #660]
@@ -898,7 +898,7 @@ ARM GAS  /tmp/ccViP7hZ.s 			page 1
  510              		.loc 1 351 10 view .LVU126
  511 0018 33E0     		b	.L40
  512              	.LVL42:
-ARM GAS  /tmp/ccViP7hZ.s 			page 16
+ARM GAS  /tmp/cc0EliPV.s 			page 16
 
 
  513              	.L46:
@@ -958,7 +958,7 @@ ARM GAS  /tmp/ccViP7hZ.s 			page 1
  553              		.loc 1 320 26 view .LVU141
  554 0046 1B69     		ldr	r3, [r3, #16]
  320:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****             (pdev->dev_state == USBD_STATE_CONFIGURED))
-ARM GAS  /tmp/ccViP7hZ.s 			page 17
+ARM GAS  /tmp/cc0EliPV.s 			page 17
 
 
  555              		.loc 1 320 12 view .LVU142
@@ -1018,7 +1018,7 @@ ARM GAS  /tmp/ccViP7hZ.s 			page 1
  597              		.loc 1 340 25 view .LVU156
  598 0072 9B69     		ldr	r3, [r3, #24]
  340:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****            (pdev->dev_state == USBD_STATE_CONFIGURED))
-ARM GAS  /tmp/ccViP7hZ.s 			page 18
+ARM GAS  /tmp/cc0EliPV.s 			page 18
 
 
  599              		.loc 1 340 11 view .LVU157
@@ -1078,7 +1078,7 @@ ARM GAS  /tmp/ccViP7hZ.s 			page 1
  357:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** * @param  pdev: device instance
  358:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** * @param  epnum: endpoint index
  359:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** * @retval status
-ARM GAS  /tmp/ccViP7hZ.s 			page 19
+ARM GAS  /tmp/cc0EliPV.s 			page 19
 
 
  360:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** */
@@ -1138,7 +1138,7 @@ ARM GAS  /tmp/ccViP7hZ.s 			page 1
  385:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****             (pep->total_length >= pep->maxpacket) &&
  386:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****             (pep->total_length < pdev->ep0_data_len))
  387:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****         {
-ARM GAS  /tmp/ccViP7hZ.s 			page 20
+ARM GAS  /tmp/cc0EliPV.s 			page 20
 
 
  388:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****           USBD_CtlContinueSendData(pdev, NULL, 0U);
@@ -1198,7 +1198,7 @@ ARM GAS  /tmp/ccViP7hZ.s 			page 1
  419:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****     }
  420:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****   }
  421:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****   else if ((pdev->pClass->DataIn != NULL) &&
-ARM GAS  /tmp/ccViP7hZ.s 			page 21
+ARM GAS  /tmp/cc0EliPV.s 			page 21
 
 
  422:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****            (pdev->dev_state == USBD_STATE_CONFIGURED))
@@ -1258,7 +1258,7 @@ ARM GAS  /tmp/ccViP7hZ.s 			page 1
  726 0046 D0F89832 		ldr	r3, [r0, #664]
  385:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****             (pep->total_length < pdev->ep0_data_len))
  727              		.loc 1 385 51 view .LVU198
-ARM GAS  /tmp/ccViP7hZ.s 			page 22
+ARM GAS  /tmp/cc0EliPV.s 			page 22
 
 
  728 004a 9942     		cmp	r1, r3
@@ -1318,7 +1318,7 @@ ARM GAS  /tmp/ccViP7hZ.s 			page 1
  770 0080 2046     		mov	r0, r4
  771 0082 FFF7FEFF 		bl	USBD_LL_PrepareReceive
  772              	.LVL77:
-ARM GAS  /tmp/ccViP7hZ.s 			page 23
+ARM GAS  /tmp/cc0EliPV.s 			page 23
 
 
  773 0086 CCE7     		b	.L53
@@ -1378,7 +1378,7 @@ ARM GAS  /tmp/ccViP7hZ.s 			page 1
  421:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****            (pdev->dev_state == USBD_STATE_CONFIGURED))
  815              		.loc 1 421 25 view .LVU223
  816 00b6 5B69     		ldr	r3, [r3, #20]
-ARM GAS  /tmp/ccViP7hZ.s 			page 24
+ARM GAS  /tmp/cc0EliPV.s 			page 24
 
 
  421:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****            (pdev->dev_state == USBD_STATE_CONFIGURED))
@@ -1438,7 +1438,7 @@ ARM GAS  /tmp/ccViP7hZ.s 			page 1
  437:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** *         Handle Reset event
  438:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** * @param  pdev: device instance
  439:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** * @retval status
-ARM GAS  /tmp/ccViP7hZ.s 			page 25
+ARM GAS  /tmp/cc0EliPV.s 			page 25
 
 
  440:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** */
@@ -1498,7 +1498,7 @@ ARM GAS  /tmp/ccViP7hZ.s 			page 1
  899 0028 6662     		str	r6, [r4, #36]
  455:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** 
  456:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****   /* Upon Reset call user call back */
-ARM GAS  /tmp/ccViP7hZ.s 			page 26
+ARM GAS  /tmp/cc0EliPV.s 			page 26
 
 
  457:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****   pdev->dev_state = USBD_STATE_DEFAULT;
@@ -1558,7 +1558,7 @@ ARM GAS  /tmp/ccViP7hZ.s 			page 1
  943              		.fpu softvfp
  945              	USBD_LL_SetSpeed:
  946              	.LVL95:
-ARM GAS  /tmp/ccViP7hZ.s 			page 27
+ARM GAS  /tmp/cc0EliPV.s 			page 27
 
 
  947              	.LFB80:
@@ -1618,7 +1618,7 @@ ARM GAS  /tmp/ccViP7hZ.s 			page 1
  979              		@ frame_needed = 0, uses_anonymous_args = 0
  980              		@ link register save eliminated.
  493:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****   pdev->dev_old_state =  pdev->dev_state;
-ARM GAS  /tmp/ccViP7hZ.s 			page 28
+ARM GAS  /tmp/cc0EliPV.s 			page 28
 
 
  981              		.loc 1 493 3 view .LVU271
@@ -1678,7 +1678,7 @@ ARM GAS  /tmp/ccViP7hZ.s 			page 1
  509:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****   {
  510:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****     pdev->dev_state = pdev->dev_old_state;
  511:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****   }
-ARM GAS  /tmp/ccViP7hZ.s 			page 29
+ARM GAS  /tmp/cc0EliPV.s 			page 29
 
 
  512:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** 
@@ -1738,7 +1738,7 @@ ARM GAS  /tmp/ccViP7hZ.s 			page 1
  1061              		.loc 1 525 11 is_stmt 0 view .LVU292
  1062 0002 90F89C32 		ldrb	r3, [r0, #668]	@ zero_extendqisi2
  1063              		.loc 1 525 6 view .LVU293
-ARM GAS  /tmp/ccViP7hZ.s 			page 30
+ARM GAS  /tmp/cc0EliPV.s 			page 30
 
 
  1064 0006 032B     		cmp	r3, #3
@@ -1798,7 +1798,7 @@ ARM GAS  /tmp/ccViP7hZ.s 			page 1
  539:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** * @param  pdev: device instance
  540:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** * @retval status
  541:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** */
-ARM GAS  /tmp/ccViP7hZ.s 			page 31
+ARM GAS  /tmp/cc0EliPV.s 			page 31
 
 
  542:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** USBD_StatusTypeDef USBD_LL_IsoINIncomplete(USBD_HandleTypeDef *pdev,
@@ -1858,7 +1858,7 @@ ARM GAS  /tmp/ccViP7hZ.s 			page 1
  564:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** 
  565:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****   return USBD_OK;
  1135              		.loc 1 565 3 view .LVU311
-ARM GAS  /tmp/ccViP7hZ.s 			page 32
+ARM GAS  /tmp/cc0EliPV.s 			page 32
 
 
  566:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** }
@@ -1918,7 +1918,7 @@ ARM GAS  /tmp/ccViP7hZ.s 			page 1
  1179              	.LVL112:
  1180              	.LFB87:
  581:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** 
-ARM GAS  /tmp/ccViP7hZ.s 			page 33
+ARM GAS  /tmp/cc0EliPV.s 			page 33
 
 
  582:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** /**
@@ -1972,51 +1972,51 @@ ARM GAS  /tmp/ccViP7hZ.s 			page 1
  1216              		.file 5 "Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_core.h"
  1217              		.file 6 "Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ioreq.h"
  1218              		.file 7 "Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ctlreq.h"
-ARM GAS  /tmp/ccViP7hZ.s 			page 34
+ARM GAS  /tmp/cc0EliPV.s 			page 34
 
 
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 usbd_core.c
-     /tmp/ccViP7hZ.s:16     .text.USBD_Init:0000000000000000 $t
-     /tmp/ccViP7hZ.s:24     .text.USBD_Init:0000000000000000 USBD_Init
-     /tmp/ccViP7hZ.s:93     .text.USBD_DeInit:0000000000000000 $t
-     /tmp/ccViP7hZ.s:100    .text.USBD_DeInit:0000000000000000 USBD_DeInit
-     /tmp/ccViP7hZ.s:144    .text.USBD_RegisterClass:0000000000000000 $t
-     /tmp/ccViP7hZ.s:151    .text.USBD_RegisterClass:0000000000000000 USBD_RegisterClass
-     /tmp/ccViP7hZ.s:184    .text.USBD_Start:0000000000000000 $t
-     /tmp/ccViP7hZ.s:191    .text.USBD_Start:0000000000000000 USBD_Start
-     /tmp/ccViP7hZ.s:215    .text.USBD_Stop:0000000000000000 $t
-     /tmp/ccViP7hZ.s:222    .text.USBD_Stop:0000000000000000 USBD_Stop
-     /tmp/ccViP7hZ.s:258    .text.USBD_RunTestMode:0000000000000000 $t
-     /tmp/ccViP7hZ.s:265    .text.USBD_RunTestMode:0000000000000000 USBD_RunTestMode
-     /tmp/ccViP7hZ.s:284    .text.USBD_SetClassConfig:0000000000000000 $t
-     /tmp/ccViP7hZ.s:291    .text.USBD_SetClassConfig:0000000000000000 USBD_SetClassConfig
-     /tmp/ccViP7hZ.s:340    .text.USBD_ClrClassConfig:0000000000000000 $t
-     /tmp/ccViP7hZ.s:347    .text.USBD_ClrClassConfig:0000000000000000 USBD_ClrClassConfig
-     /tmp/ccViP7hZ.s:376    .text.USBD_LL_SetupStage:0000000000000000 $t
-     /tmp/ccViP7hZ.s:383    .text.USBD_LL_SetupStage:0000000000000000 USBD_LL_SetupStage
-     /tmp/ccViP7hZ.s:465    .text.USBD_LL_DataOutStage:0000000000000000 $t
-     /tmp/ccViP7hZ.s:472    .text.USBD_LL_DataOutStage:0000000000000000 USBD_LL_DataOutStage
-     /tmp/ccViP7hZ.s:633    .text.USBD_LL_DataInStage:0000000000000000 $t
-     /tmp/ccViP7hZ.s:640    .text.USBD_LL_DataInStage:0000000000000000 USBD_LL_DataInStage
-     /tmp/ccViP7hZ.s:850    .text.USBD_LL_Reset:0000000000000000 $t
-     /tmp/ccViP7hZ.s:857    .text.USBD_LL_Reset:0000000000000000 USBD_LL_Reset
-     /tmp/ccViP7hZ.s:938    .text.USBD_LL_SetSpeed:0000000000000000 $t
-     /tmp/ccViP7hZ.s:945    .text.USBD_LL_SetSpeed:0000000000000000 USBD_LL_SetSpeed
-     /tmp/ccViP7hZ.s:966    .text.USBD_LL_Suspend:0000000000000000 $t
-     /tmp/ccViP7hZ.s:973    .text.USBD_LL_Suspend:0000000000000000 USBD_LL_Suspend
-     /tmp/ccViP7hZ.s:1000   .text.USBD_LL_Resume:0000000000000000 $t
-     /tmp/ccViP7hZ.s:1007   .text.USBD_LL_Resume:0000000000000000 USBD_LL_Resume
-     /tmp/ccViP7hZ.s:1040   .text.USBD_LL_SOF:0000000000000000 $t
-     /tmp/ccViP7hZ.s:1047   .text.USBD_LL_SOF:0000000000000000 USBD_LL_SOF
-     /tmp/ccViP7hZ.s:1091   .text.USBD_LL_IsoINIncomplete:0000000000000000 $t
-     /tmp/ccViP7hZ.s:1098   .text.USBD_LL_IsoINIncomplete:0000000000000000 USBD_LL_IsoINIncomplete
-     /tmp/ccViP7hZ.s:1118   .text.USBD_LL_IsoOUTIncomplete:0000000000000000 $t
-     /tmp/ccViP7hZ.s:1125   .text.USBD_LL_IsoOUTIncomplete:0000000000000000 USBD_LL_IsoOUTIncomplete
-     /tmp/ccViP7hZ.s:1145   .text.USBD_LL_DevConnected:0000000000000000 $t
-     /tmp/ccViP7hZ.s:1152   .text.USBD_LL_DevConnected:0000000000000000 USBD_LL_DevConnected
-     /tmp/ccViP7hZ.s:1171   .text.USBD_LL_DevDisconnected:0000000000000000 $t
-     /tmp/ccViP7hZ.s:1178   .text.USBD_LL_DevDisconnected:0000000000000000 USBD_LL_DevDisconnected
+     /tmp/cc0EliPV.s:16     .text.USBD_Init:0000000000000000 $t
+     /tmp/cc0EliPV.s:24     .text.USBD_Init:0000000000000000 USBD_Init
+     /tmp/cc0EliPV.s:93     .text.USBD_DeInit:0000000000000000 $t
+     /tmp/cc0EliPV.s:100    .text.USBD_DeInit:0000000000000000 USBD_DeInit
+     /tmp/cc0EliPV.s:144    .text.USBD_RegisterClass:0000000000000000 $t
+     /tmp/cc0EliPV.s:151    .text.USBD_RegisterClass:0000000000000000 USBD_RegisterClass
+     /tmp/cc0EliPV.s:184    .text.USBD_Start:0000000000000000 $t
+     /tmp/cc0EliPV.s:191    .text.USBD_Start:0000000000000000 USBD_Start
+     /tmp/cc0EliPV.s:215    .text.USBD_Stop:0000000000000000 $t
+     /tmp/cc0EliPV.s:222    .text.USBD_Stop:0000000000000000 USBD_Stop
+     /tmp/cc0EliPV.s:258    .text.USBD_RunTestMode:0000000000000000 $t
+     /tmp/cc0EliPV.s:265    .text.USBD_RunTestMode:0000000000000000 USBD_RunTestMode
+     /tmp/cc0EliPV.s:284    .text.USBD_SetClassConfig:0000000000000000 $t
+     /tmp/cc0EliPV.s:291    .text.USBD_SetClassConfig:0000000000000000 USBD_SetClassConfig
+     /tmp/cc0EliPV.s:340    .text.USBD_ClrClassConfig:0000000000000000 $t
+     /tmp/cc0EliPV.s:347    .text.USBD_ClrClassConfig:0000000000000000 USBD_ClrClassConfig
+     /tmp/cc0EliPV.s:376    .text.USBD_LL_SetupStage:0000000000000000 $t
+     /tmp/cc0EliPV.s:383    .text.USBD_LL_SetupStage:0000000000000000 USBD_LL_SetupStage
+     /tmp/cc0EliPV.s:465    .text.USBD_LL_DataOutStage:0000000000000000 $t
+     /tmp/cc0EliPV.s:472    .text.USBD_LL_DataOutStage:0000000000000000 USBD_LL_DataOutStage
+     /tmp/cc0EliPV.s:633    .text.USBD_LL_DataInStage:0000000000000000 $t
+     /tmp/cc0EliPV.s:640    .text.USBD_LL_DataInStage:0000000000000000 USBD_LL_DataInStage
+     /tmp/cc0EliPV.s:850    .text.USBD_LL_Reset:0000000000000000 $t
+     /tmp/cc0EliPV.s:857    .text.USBD_LL_Reset:0000000000000000 USBD_LL_Reset
+     /tmp/cc0EliPV.s:938    .text.USBD_LL_SetSpeed:0000000000000000 $t
+     /tmp/cc0EliPV.s:945    .text.USBD_LL_SetSpeed:0000000000000000 USBD_LL_SetSpeed
+     /tmp/cc0EliPV.s:966    .text.USBD_LL_Suspend:0000000000000000 $t
+     /tmp/cc0EliPV.s:973    .text.USBD_LL_Suspend:0000000000000000 USBD_LL_Suspend
+     /tmp/cc0EliPV.s:1000   .text.USBD_LL_Resume:0000000000000000 $t
+     /tmp/cc0EliPV.s:1007   .text.USBD_LL_Resume:0000000000000000 USBD_LL_Resume
+     /tmp/cc0EliPV.s:1040   .text.USBD_LL_SOF:0000000000000000 $t
+     /tmp/cc0EliPV.s:1047   .text.USBD_LL_SOF:0000000000000000 USBD_LL_SOF
+     /tmp/cc0EliPV.s:1091   .text.USBD_LL_IsoINIncomplete:0000000000000000 $t
+     /tmp/cc0EliPV.s:1098   .text.USBD_LL_IsoINIncomplete:0000000000000000 USBD_LL_IsoINIncomplete
+     /tmp/cc0EliPV.s:1118   .text.USBD_LL_IsoOUTIncomplete:0000000000000000 $t
+     /tmp/cc0EliPV.s:1125   .text.USBD_LL_IsoOUTIncomplete:0000000000000000 USBD_LL_IsoOUTIncomplete
+     /tmp/cc0EliPV.s:1145   .text.USBD_LL_DevConnected:0000000000000000 $t
+     /tmp/cc0EliPV.s:1152   .text.USBD_LL_DevConnected:0000000000000000 USBD_LL_DevConnected
+     /tmp/cc0EliPV.s:1171   .text.USBD_LL_DevDisconnected:0000000000000000 $t
+     /tmp/cc0EliPV.s:1178   .text.USBD_LL_DevDisconnected:0000000000000000 USBD_LL_DevDisconnected
 
 UNDEFINED SYMBOLS
 USBD_LL_Init
@@ -2032,7 +2032,7 @@ USBD_CtlContinueRx
 USBD_CtlSendStatus
 USBD_CtlReceiveStatus
 USBD_CtlContinueSendData
-ARM GAS  /tmp/ccViP7hZ.s 			page 35
+ARM GAS  /tmp/cc0EliPV.s 			page 35
 
 
 USBD_LL_PrepareReceive
