@@ -65,6 +65,13 @@ struct Twist
     float32_t w;  /**< Angular velocity. */
 };
 
+struct EncoderCount
+{
+    int32_t back;
+    int32_t right;
+    int32_t left;
+};
+
 /**
  * @brief Structure representing the state of the robot.
  */
@@ -72,6 +79,7 @@ struct Robostate
 {
     Pose pose;   /**< Robot pose. */
     Twist twist; /**< Robot twist. */
+    EncoderCount count;
 };
 
 /**
@@ -79,9 +87,6 @@ struct Robostate
  */
 class Free_Wheel
 {
-private:
-    Encoder enc_[3];
-
 public:
     /**
      * @brief Default constructor.
@@ -128,8 +133,8 @@ public:
     float32_t y = 0.0f;     /**< Y-coordinate (meter) of the robot. */
     float32_t theta = 0.0f; /**< Orientation (yaw angle in radians) of the robot. */
 
-    // start_byte:1, x:4, y:4, theta:4, vx:4, vy:4, omega:4, crc:1
-    uint8_t sending_bytes[26]; /**< Buffer for storing data to be transmitted. */
+    // start_byte:1, x:4, y:4, theta:4, vx:4, vy:4, omega:4, back_count:4, right_count:4, left_count:4, crc:1
+    uint8_t sending_bytes[38]; /**< Buffer for storing data to be transmitted. */
     bool is_transmitting = false; /**< Flag indicating if data transmission is in progress. */
 };
 #endif

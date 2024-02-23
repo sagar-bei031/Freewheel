@@ -81,10 +81,10 @@ PREFIX = arm-none-eabi-
 # either it can be added to the PATH environment variable.
 ifdef GCC_PATH
 CC = $(GCC_PATH)/$(PREFIX)gcc
+CXX = $(GCC_PATH)/$(PREFIX)g++
 AS = $(GCC_PATH)/$(PREFIX)gcc -x assembler-with-cpp
 CP = $(GCC_PATH)/$(PREFIX)objcopy
 SZ = $(GCC_PATH)/$(PREFIX)size
-CXX = $(GCC_PATH)/$(PREFIX)g++
 else
 CC = $(PREFIX)gcc
 AS = $(PREFIX)gcc -x assembler-with-cpp
@@ -132,8 +132,7 @@ C_INCLUDES =  \
 -IDrivers/STM32F1xx_HAL_Driver/Inc/Legacy \
 -IDrivers/CMSIS/Device/ST/STM32F1xx/Include \
 -IDrivers/CMSIS/Include  \
--IDrivers/CMSIS/DSP/Include \
--IDrivers/CMSIS/Include
+-IDrivers/CMSIS/DSP/Include
 
 # CXX includes
 CXX_INCLUDES =  \
@@ -141,6 +140,7 @@ CXX_INCLUDES =  \
 -IDrivers/STM32F4xx_HAL_Driver/Inc \
 -IDrivers/STM32F4xx_HAL_Driver/Inc/Legacy \
 -IDrivers/CMSIS/Device/ST/STM32F4xx/Include \
+-IDrivers/CMSIS/Include \
 -IDrivers/CMSIS/DSP/Include 
 
 # compile gcc flags
@@ -155,7 +155,7 @@ endif
 
 # Generate dependency information
 CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
-CXXFLAGS += $(CFLAGS) $(CXX_INCLUDES) -fno-exceptions -Wall -Wpedantic
+CXXFLAGS += $(CFLAGS) $(CXX_INCLUDES) -fno-exceptions -Wpedantic
 
 
 
@@ -221,20 +221,9 @@ clean:
 # dependencies
 #######################################
 -include $(wildcard $(BUILD_DIR)/*.d)
+
 flash:
 	st-flash write $(BUILD_DIR)/$(TARGET).bin 0x8000000
-
-device = STM32F103C6
-$(BUILD_DIR)/jflash: $(BUILD_DIR)/$(TARGET).bin
-	@touch $@
-	@echo device $(device) > $@
-	@echo -e si 1'\n'speed 4000 >> $@
-	@echo loadbin $< 0x8000000 >> $@
-	@echo -e r'\n'g'\n'qc >> $@
-
-jflash: $(BUILD_DIR)/jflash
-	JLinkExe -commanderscript $<
-	
 
 device = STM32F103C6
 $(BUILD_DIR)/jflash: $(BUILD_DIR)/$(TARGET).bin

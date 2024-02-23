@@ -19,17 +19,15 @@
 // Define __count for testing purposes
 #define __count
 
-#define F32_2_PI  6.28318530717958f
-#define F32_PI    3.14159265358979f
-#define F32_PI_2  1.57079632679489f
+#define F32_2_PI 6.28318530717958f
+#define F32_PI 3.14159265358979f
+#define F32_PI_2 1.57079632679489f
 
 Free_Wheel free_wheel;
 
-
-int32_t bc = 0;
-int32_t rc = 0;
-int32_t lc = 0;
-
+int32_t total_back_count = 0;
+int32_t total_right_count = 0;
+int32_t total_left_count = 0;
 
 float32_t imu_yaw = 0.0f;
 float32_t prev_imu_yaw = 0.0f;
@@ -143,9 +141,9 @@ void Free_Wheel::read_data()
     right_count = -right_enc.get_count();
     left_count = left_enc.get_count();
 
-    bc += back_count;
-    rc += right_count;
-    lc += left_count;
+    total_back_count += back_count;
+    total_right_count += right_count;
+    total_left_count += left_count;
 
     back_omega = -back_enc.get_omega();
     right_omega = -right_enc.get_omega();
@@ -172,7 +170,7 @@ void Free_Wheel::process_data()
 
     float32_t d_theta = (right_dist - left_dist) / (LEFT_RADIUS + RIGHT_RADIUS);
 
-    if (HAL_GetTick() - imu_input_tick < 100U)
+    if (HAL_GetTick() - imu_input_tick < 500U)
     {
         float32_t d_imu_yaw;
 
@@ -216,19 +214,17 @@ void Free_Wheel::process_data()
     float32_t vx = (right_vel * LEFT_RADIUS + left_vel * RIGHT_RADIUS) / (RIGHT_RADIUS + LEFT_RADIUS);
     float32_t vy = back_vel + omega * BACK_RADIUS;
 
-        robostate.pose.x = x;
+    robostate.pose.x = x;
     robostate.pose.y = y;
     robostate.pose.theta = theta;
 
-#ifdef __count
-    robostate.twist.vx = bc;
-    robostate.twist.vy = rc;
-    robostate.twist.w = lc;
-#else
     robostate.twist.vx = vx;
     robostate.twist.vy = vy;
     robostate.twist.w = omega;
-#endif
+
+    robostate.count.back = total_back_count;
+    robostate.count.right = total_right_count;
+    robostate.count.left = total_left_count;
 }
 
 /**
@@ -253,10 +249,10 @@ void send_data()
         if ((HAL_GetTick() - transmit_tick >= 50) && (!free_wheel.is_transmitting))
         {
             free_wheel.sending_bytes[0] = START_BYTE;
-            memcpy(free_wheel.sending_bytes + 1, (uint8_t *)(&free_wheel.robostate), 24);
-            free_wheel.sending_bytes[25] = crc.get_Hash((uint8_t *)(free_wheel.sending_bytes + 1), 24);
+            memcpy(free_wheel.sending_bytes + 1, (uint8_t *)(&free_wheel.robostate), 36);
+            free_wheel.sending_bytes[37] = crc.get_Hash((uint8_t *)(free_wheel.sending_bytes + 1), 36);
 
-            HAL_UART_Transmit_DMA(&huart2, free_wheel.sending_bytes, 26);
+            HAL_UART_Transmit_DMA(&huart2, free_wheel.sending_bytes, 38);
             free_wheel.is_transmitting = true;
             transmit_tick = HAL_GetTick();
         }
