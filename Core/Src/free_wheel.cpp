@@ -7,18 +7,17 @@
  ******************************************************************************
  */
 
-#include "free_wheel.h"
-#include "encoder.hpp"
-#include "gpio.h"
-#include "tim.h"
-#include "usart.h"
-#include "arm_math.h"
-#include "crc.hpp"
 #include <memory.h>
 #include <stdio.h>
+#include "arm_math.h"
+#include "gpio.h"
+#include "usart.h"
+#include "tim.h"
+#include "crc.hpp"
+#include "encoder.hpp"
+#include "free_wheel.h"
 
-// Define __count for testing purposes
-#define __count
+#define PRINT_COUNT
 
 #define F32_2_PI 6.28318530717958f
 #define F32_PI 3.14159265358979f
@@ -133,8 +132,6 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
  */
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 {
-    // HAL_UART_DMAStop(&huart2);
-    free_wheel.is_transmitting = false;
     HAL_GPIO_TogglePin(YELLOW_LED2_GPIO_Port, YELLOW_LED2_Pin);
 }
 
@@ -218,8 +215,6 @@ void Free_Wheel::process_data()
     robostate.twist.vx = vx;
     robostate.twist.vy = vy;
     robostate.twist.w = omega;
-
-    printf("count: %ld %ld %ld\n", total_back_count, total_right_count, total_left_count);
 }
 
 /**
@@ -229,13 +224,12 @@ void send_data()
 {
     free_wheel.init();
     uint32_t loop_tick = 0;
+    uint32_t now = HAL_GetTick();
 
     while (1)
     {
-        if (HAL_GetTick() - loop_tick < 5)
+        if (now - loop_tick < 5)
             continue;
-
-        printf("OK boy\n");
 
         loop_tick = HAL_GetTick();
 
@@ -243,15 +237,18 @@ void send_data()
         free_wheel.process_data();
 
         static uint32_t transmit_tick;
-        if ((HAL_GetTick() - transmit_tick >= 50) && (!free_wheel.is_transmitting))
+        if (now - transmit_tick >= 50)
         {
             free_wheel.sending_bytes[0] = START_BYTE;
             memcpy(free_wheel.sending_bytes + 1, (uint8_t *)(&free_wheel.robostate), sizeof(Robostate));
-            free_wheel.sending_bytes[sizeof(Robostate)+1] = crc.get_Hash((uint8_t *)(free_wheel.sending_bytes + 1), sizeof(Robostate));
+            free_wheel.sending_bytes[sizeof(Robostate) + 1] = crc.get_Hash((uint8_t *)(free_wheel.sending_bytes + 1), sizeof(Robostate));
 
-            HAL_UART_Transmit_DMA(&huart2, free_wheel.sending_bytes, sizeof(Robostate)+2);
-            free_wheel.is_transmitting = true;
-            transmit_tick = HAL_GetTick();
+            HAL_UART_Transmit_DMA(&huart2, free_wheel.sending_bytes, sizeof(Robostate) + 2);
+            transmit_tick = now;
+
+#ifdef PRINT_COUNT
+            printf("count: %ld %ld %ld\n", total_back_count, total_right_count, total_left_count);
+#endif
         }
     }
 }
