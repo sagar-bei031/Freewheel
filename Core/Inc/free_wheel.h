@@ -134,7 +134,6 @@ public:
 
     // start_byte:1, x:4, y:4, theta:4, vx:4, vy:4, omega:4, back_count:4, right_count:4, left_count:4, crc:1
     uint8_t sending_bytes[sizeof(Robostate)+2]; /**< Buffer for storing data to be transmitted. */
-    bool is_transmitting = false; /**< Flag indicating if data transmission is in progress. */
 };
 #endif
 

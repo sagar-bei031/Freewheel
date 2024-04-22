@@ -1,5 +1,5 @@
-#include "encoder.hpp"
 #include "arm_math.h"
+#include "encoder.hpp"
 
 int32_t Encoder::get_count()
 {
