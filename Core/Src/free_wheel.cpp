@@ -35,7 +35,6 @@ uint32_t imu_input_tick = 0;
 
 uint8_t receiving_bytes[6];
 bool is_waiting_for_start_byte = true;
-uint32_t red_led_tick;
 
 CRC_Hash crc{7};
 
@@ -50,79 +49,50 @@ inline float32_t angleClamp(float32_t angle);
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
     __HAL_UART_FLUSH_DRREGISTER(huart);
+    static uint32_t board_led_tick = 0;
 
-    static uint32_t led1_tick;
-    if (HAL_GetTick() - led1_tick > 20)
+    uint32_t now = HAL_GetTick();
+    if (now - board_led_tick > 50)
     {
-        HAL_GPIO_TogglePin(YELLOW_LED1_GPIO_Port, YELLOW_LED1_Pin);
-        led1_tick = HAL_GetTick();
+        HAL_GPIO_TogglePin(BOARD_LED_GPIO_Port, BOARD_LED_Pin);
+        board_led_tick = now;
     }
 
-    if (is_waiting_for_start_byte)
+    if (huart->Instance == free_wheel.bno.huart->Instance)
     {
-        if (receiving_bytes[0] == START_BYTE)
+        if (free_wheel.bno.receive() == Bno08::BnoRecvStatus::CHECKSUM_MATCHED)
         {
-            is_waiting_for_start_byte = false;
-            receiving_bytes[0] = 0x00;
-            HAL_UART_Receive_DMA(&huart1, receiving_bytes + 1, 5);
-        }
-        else
-        {
-            if (HAL_GetTick() - red_led_tick > 20)
-            {
-                HAL_GPIO_TogglePin(RED_LED_GPIO_Port, RED_LED_Pin);
-                red_led_tick = HAL_GetTick();
-            }
-
-            HAL_UART_Receive_DMA(&huart1, receiving_bytes, 1);
-        }
-    }
-    else
-    {
-        is_waiting_for_start_byte = true;
-        HAL_UART_Receive_DMA(&huart1, receiving_bytes, 1);
-
-        if (crc.get_Hash(receiving_bytes + 1, 4) == receiving_bytes[5])
-        {
-            memcpy((uint8_t *)&imu_yaw, receiving_bytes + 1, 4);
-            imu_input_tick = HAL_GetTick();
-
-            static uint32_t board_led_tick;
-            if (HAL_GetTick() - board_led_tick > 20)
-            {
-                HAL_GPIO_TogglePin(BOARD_LED_GPIO_Port, BOARD_LED_Pin);
-                board_led_tick = HAL_GetTick();
-            }
-        }
-        else
-        {
-            if (HAL_GetTick() - red_led_tick > 20)
-            {
-                HAL_GPIO_TogglePin(RED_LED_GPIO_Port, RED_LED_Pin);
-                red_led_tick = HAL_GetTick();
-            }
+            imu_yaw = free_wheel.bno.data.yaw;
+            // printf("imu: %f %f %f %f %f %f\n", free_wheel.bno.data.yaw,
+            //                           free_wheel.bno.data.pitch,
+            //                           free_wheel.bno.data.roll,
+            //                           free_wheel.bno.data.accel_x,
+            //                           free_wheel.bno.data.accel_y,
+            //                           free_wheel.bno.data.accel_z);
         }
     }
 }
 
-// /**
-//  * @brief Callback function for handling UART errors.
-//  * @param huart Pointer to the UART handle structure.
-//  */
+/**
+ * @brief Callback function for handling UART errors.
+ * @param huart Pointer to the UART handle structure.
+ */
 void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 {
     __HAL_UART_FLUSH_DRREGISTER(huart);
 
-    if (HAL_GetTick() - red_led_tick > 20)
+    static uint32_t red_led_tick = 0;
+    uint32_t now = HAL_GetTick();
+
+    if (now - red_led_tick > 20)
     {
         HAL_GPIO_TogglePin(RED_LED_GPIO_Port, RED_LED_Pin);
-        red_led_tick = HAL_GetTick();
+        red_led_tick = now;
     }
 
-    if (huart->Instance == huart1.Instance)
+    if (huart->Instance == free_wheel.bno.huart->Instance)
     {
-        is_waiting_for_start_byte = true;
-        HAL_UART_Receive_DMA(&huart1, receiving_bytes, 1);
+        free_wheel.bno.init();
     }
 }
 
@@ -140,11 +110,10 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
  */
 void Free_Wheel::init()
 {
+    bno.init();
     back_enc.init();
     right_enc.init();
     left_enc.init();
-
-    HAL_UART_Receive_DMA(&huart1, receiving_bytes, 1);
 }
 
 /**
@@ -185,10 +154,10 @@ void Free_Wheel::process_data()
 
     float32_t d_theta = (right_dist - left_dist) / (LEFT_RADIUS + RIGHT_RADIUS);
 
-    if (HAL_GetTick() - imu_input_tick < 100U)
+    if (bno.isConnected())
     {
         float32_t d_imu_yaw = radianChange(imu_yaw, prev_imu_yaw);
-        d_theta = 0.1f * d_theta + 0.9f * d_imu_yaw;
+        d_theta = d_imu_yaw;
         prev_imu_yaw = imu_yaw;
     }
 
@@ -249,7 +218,7 @@ void send_data()
             transmit_tick = now;
 
 #ifdef PRINT_COUNT
-            printf("count: %ld %ld %ld\n", total_back_count, total_right_count, total_left_count);
+            // printf("count: %ld %ld %ld\n", total_back_count, total_right_count, total_left_count);
 #endif
         }
     }

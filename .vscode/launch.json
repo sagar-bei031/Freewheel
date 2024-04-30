@@ -12,7 +12,9 @@
             "type": "cortex-debug",
             "runToEntryPoint": "main",
             "servertype": "jlink",
-            "device": "STM32F103C8"
+            "device": "STM32F103C8",
+            "interface": "swd",
+            "gdbPath": "/usr/bin/gdb-multiarch"
         }
     ]
 }

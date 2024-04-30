@@ -14,6 +14,8 @@
 
 #include "encoder.hpp"
 #include "tim.h"
+#include "usart.h"
+#include "bno08.hpp"
 
 /**
  * @brief Radius of the back wheel in meter.
@@ -112,6 +114,7 @@ public:
      */
     void process_data();
 
+    Bno08 bno{&huart1};
     Robostate robostate; /**< Robot position and twist. */
 
     Encoder back_enc{&htim3, CPR};  /**< Encoder for the back wheel. */
