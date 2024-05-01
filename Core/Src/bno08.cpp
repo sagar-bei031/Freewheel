@@ -37,7 +37,6 @@ Bno08::BnoRecvStatus Bno08::receive()
         {
             HAL_UART_Receive_DMA(huart, (uint8_t *)&buffer, 2);
             status = HEADER_ERROR;
-            printf("header error\n");
         }
     }
     else
@@ -51,7 +50,6 @@ Bno08::BnoRecvStatus Bno08::receive()
         else
         {
             status = CHECKSUM_ERROR;
-            printf("checksum error\n");
         }
         isWaitingForHeader = true;
         HAL_UART_Receive_DMA(huart, (uint8_t *)&buffer, 2);
@@ -71,7 +69,7 @@ void Bno08::parseImuData()
 
 bool Bno08::isConnected()
 {
-    if ((lastReceive != 0) && (HAL_GetTick() - lastReceive < 100))
+    if ((lastReceive != 0) && (HAL_GetTick() - lastReceive < 2 * BNO_TIME_PERIOD))
     {
         return true;
     }

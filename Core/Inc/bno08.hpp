@@ -5,6 +5,7 @@
 
 #define BNO_PACKET_SIZE 19
 #define BNO_HEADER 0xAAAA
+#define BNO_TIME_PERIOD 10 // milliseconds for 100Hz
 #define _g 9.80665f
 
 #pragma pack(push, 1)

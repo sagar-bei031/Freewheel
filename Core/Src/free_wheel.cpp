@@ -17,8 +17,6 @@
 #include "encoder.hpp"
 #include "free_wheel.h"
 
-#define PRINT_COUNT
-
 #define F32_2_PI 6.28318530717958f
 #define F32_PI 3.14159265358979f
 #define F32_PI_2 1.57079632679489f
@@ -29,9 +27,11 @@ int32_t total_back_count = 0;
 int32_t total_right_count = 0;
 int32_t total_left_count = 0;
 
+bool is_imu_ready = false;
 float32_t imu_yaw = 0.0f;
 float32_t prev_imu_yaw = 0.0f;
-uint32_t imu_input_tick = 0;
+uint32_t board_led_tick = 0;
+uint32_t red_led_tick = 0;
 
 uint8_t receiving_bytes[6];
 bool is_waiting_for_start_byte = true;
@@ -49,26 +49,23 @@ inline float32_t angleClamp(float32_t angle);
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
     __HAL_UART_FLUSH_DRREGISTER(huart);
-    static uint32_t board_led_tick = 0;
 
-    uint32_t now = HAL_GetTick();
-    if (now - board_led_tick > 50)
-    {
-        HAL_GPIO_TogglePin(BOARD_LED_GPIO_Port, BOARD_LED_Pin);
-        board_led_tick = now;
-    }
+    // uint32_t now = HAL_GetTick();
 
     if (huart->Instance == free_wheel.bno.huart->Instance)
     {
+        // uint32_t last_receive = free_wheel.bno.lastReceive;
         if (free_wheel.bno.receive() == Bno08::BnoRecvStatus::CHECKSUM_MATCHED)
         {
-            imu_yaw = free_wheel.bno.data.yaw;
-            // printf("imu: %f %f %f %f %f %f\n", free_wheel.bno.data.yaw,
-            //                           free_wheel.bno.data.pitch,
-            //                           free_wheel.bno.data.roll,
-            //                           free_wheel.bno.data.accel_x,
-            //                           free_wheel.bno.data.accel_y,
-            //                           free_wheel.bno.data.accel_z);
+            imu_yaw = free_wheel.bno.data.yaw * M_PI / 180;
+            // printf("imu: %lu %f %f %f %f %f %f\n",
+            //        now - last_receive,
+            //        free_wheel.bno.data.yaw,
+            //        free_wheel.bno.data.pitch,
+            //        free_wheel.bno.data.roll,
+            //        free_wheel.bno.data.accel_x,
+            //        free_wheel.bno.data.accel_y,
+            //        free_wheel.bno.data.accel_z);
         }
     }
 }
@@ -102,7 +99,7 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
  */
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 {
-    HAL_GPIO_TogglePin(YELLOW_LED2_GPIO_Port, YELLOW_LED2_Pin);
+    HAL_GPIO_TogglePin(YELLOW_LED_GPIO_Port, YELLOW_LED_Pin);
 }
 
 /**
@@ -144,6 +141,8 @@ void Free_Wheel::read_data()
 
 void Free_Wheel::process_data()
 {
+    uint32_t now = HAL_GetTick();
+
     float32_t back_dist = F32_PI * Wheel_Diameter * (float32_t)back_count / (float)CPR;
     float32_t right_dist = F32_PI * Wheel_Diameter * (float32_t)right_count / (float32_t)CPR;
     float32_t left_dist = F32_PI * Wheel_Diameter * (float32_t)left_count / (float32_t)CPR;
@@ -156,9 +155,33 @@ void Free_Wheel::process_data()
 
     if (bno.isConnected())
     {
-        float32_t d_imu_yaw = radianChange(imu_yaw, prev_imu_yaw);
-        d_theta = d_imu_yaw;
-        prev_imu_yaw = imu_yaw;
+        if (is_imu_ready)
+        {
+            float32_t d_imu_yaw = radianChange(imu_yaw, prev_imu_yaw);
+            d_theta = d_imu_yaw;
+            prev_imu_yaw = imu_yaw;
+
+            if (now - board_led_tick > 20)
+            {
+                HAL_GPIO_TogglePin(BOARD_LED_GPIO_Port, BOARD_LED_Pin);
+                board_led_tick = now;
+            }
+        }
+        else
+        {
+            prev_imu_yaw = imu_yaw;
+            is_imu_ready = true;
+
+            if (now - red_led_tick > 20)
+            {
+                HAL_GPIO_TogglePin(RED_LED_GPIO_Port, RED_LED_Pin);
+                red_led_tick = now;
+            }
+        }
+    }
+    else
+    {
+        is_imu_ready = false;
     }
 
     float32_t dx = (right_dist * LEFT_RADIUS + left_dist * RIGHT_RADIUS) / (LEFT_RADIUS + RIGHT_RADIUS);
@@ -208,7 +231,7 @@ void send_data()
         free_wheel.process_data();
 
         static uint32_t transmit_tick;
-        if (now - transmit_tick >= 50)
+        if (now - transmit_tick >= 30)
         {
             free_wheel.sending_bytes[0] = START_BYTE;
             memcpy(free_wheel.sending_bytes + 1, (uint8_t *)(&free_wheel.robostate), sizeof(Robostate));
@@ -217,9 +240,7 @@ void send_data()
             HAL_UART_Transmit_DMA(&huart2, free_wheel.sending_bytes, sizeof(Robostate) + 2);
             transmit_tick = now;
 
-#ifdef PRINT_COUNT
-            // printf("count: %ld %ld %ld\n", total_back_count, total_right_count, total_left_count);
-#endif
+            // printf("count yaw: %ld %ld %ld %f\n", total_back_count, total_right_count, total_left_count, free_wheel.robostate.pose.theta * 180/M_PI);
         }
     }
 }
