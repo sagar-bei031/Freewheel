@@ -184,8 +184,10 @@ void Free_Wheel::process_data()
         is_imu_ready = false;
     }
 
+
     float32_t dx = (right_dist * LEFT_RADIUS + left_dist * RIGHT_RADIUS) / (LEFT_RADIUS + RIGHT_RADIUS);
-    float32_t dy = back_dist + BACK_RADIUS * d_theta;
+    // float32_t dx = right_dist - RIGHT_RADIUS*d_theta;
+    float32_t dy = back_dist - BACK_RADIUS * d_theta;
 
     float32_t theta_t = angleClamp(theta + d_theta / 2.0f);
     float32_t cos_value = arm_cos_f32(theta_t);
@@ -240,7 +242,7 @@ void send_data()
             HAL_UART_Transmit_DMA(&huart2, free_wheel.sending_bytes, sizeof(Robostate) + 2);
             transmit_tick = now;
 
-            // printf("count yaw: %ld %ld %ld %f\n", total_back_count, total_right_count, total_left_count, free_wheel.robostate.pose.theta * 180/M_PI);
+            printf("count yaw: %ld %ld %ld %f\n", total_back_count, total_right_count, total_left_count, free_wheel.robostate.pose.theta * 180/M_PI);
         }
     }
 }
