@@ -21,7 +21,9 @@
 #define F32_PI 3.14159265358979f
 #define F32_PI_2 1.57079632679489f
 
+
 Free_Wheel free_wheel;
+Imu_data imu;
 
 int32_t total_back_count = 0;
 int32_t total_right_count = 0;
@@ -29,7 +31,12 @@ int32_t total_left_count = 0;
 
 bool is_imu_ready = false;
 float32_t imu_yaw = 0.0f;
+float32_t imu_roll = 0.0f;
+float32_t imu_pitch = 0.0f;
 float32_t prev_imu_yaw = 0.0f;
+float32_t prev_imu_roll = 0.0f;
+float32_t prev_imu_pitch = 0.0f;
+
 uint32_t board_led_tick = 0;
 uint32_t red_led_tick = 0;
 
@@ -58,6 +65,13 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
         if (free_wheel.bno.receive() == Bno08::BnoRecvStatus::CHECKSUM_MATCHED)
         {
             imu_yaw = free_wheel.bno.data.yaw * M_PI / 180;
+            imu_pitch = free_wheel.bno.data.pitch * M_PI / 180;
+            imu_roll = free_wheel.bno.data.roll * M_PI / 180;
+
+            imu.accel_x = free_wheel.bno.data.accel_x;
+            imu.accel_y = free_wheel.bno.data.accel_y;
+            imu.accel_z = free_wheel.bno.data.accel_z;
+
             // printf("imu: %lu %f %f %f %f %f %f\n",
             //        now - last_receive,
             //        free_wheel.bno.data.yaw,
@@ -151,15 +165,25 @@ void Free_Wheel::process_data()
     float32_t right_vel = right_omega * Wheel_Diameter / 2.0f;
     float32_t left_vel = left_omega * Wheel_Diameter / 2.0f;
 
-    float32_t d_theta = (right_dist - left_dist) / (LEFT_RADIUS + RIGHT_RADIUS);
+    float32_t d_yaw = (right_dist - left_dist) / (LEFT_RADIUS + RIGHT_RADIUS);
+    float32_t d_roll = 0.0f;
+    float32_t d_pitch = 0.0f;
 
     if (bno.isConnected())
     {
         if (is_imu_ready)
         {
             float32_t d_imu_yaw = radianChange(imu_yaw, prev_imu_yaw);
-            d_theta = d_imu_yaw;
+            d_yaw = d_imu_yaw;
             prev_imu_yaw = imu_yaw;
+
+            float32_t d_imu_roll = radianChange(imu_roll, prev_imu_roll);
+            d_roll = d_imu_roll;
+            prev_imu_roll = imu_roll;
+
+            float32_t d_imu_pitch = radianChange(imu_pitch, prev_imu_pitch);
+            d_pitch = d_imu_pitch;
+            prev_imu_pitch = imu_pitch;
 
             if (now - board_led_tick > 20)
             {
@@ -186,17 +210,23 @@ void Free_Wheel::process_data()
 
 
     float32_t dx = (right_dist * LEFT_RADIUS + left_dist * RIGHT_RADIUS) / (LEFT_RADIUS + RIGHT_RADIUS);
-    // float32_t dx = right_dist - RIGHT_RADIUS*d_theta;
-    float32_t dy = back_dist - BACK_RADIUS * d_theta;
+    // float32_t dx = right_dist - RIGHT_RADIUS*d_yaw;
+    float32_t dy = back_dist - BACK_RADIUS * d_yaw;
 
-    float32_t theta_t = angleClamp(theta + d_theta / 2.0f);
+    float32_t theta_t = angleClamp(theta + d_yaw / 2.0f);
     float32_t cos_value = arm_cos_f32(theta_t);
     float32_t sin_value = arm_sin_f32(theta_t);
 
     x += dx * cos_value - dy * sin_value;
     y += dx * sin_value + dy * cos_value;
-    theta += d_theta;
+    
+    theta += d_yaw;
+    roll += d_roll;
+    pitch += d_pitch;
+
     theta = angleClamp(theta);
+    roll = angleClamp(roll);
+    pitch = angleClamp(pitch);
 
     float32_t omega = (right_vel - left_vel) / (RIGHT_RADIUS + LEFT_RADIUS);
     float32_t vx = (right_vel * LEFT_RADIUS + left_vel * RIGHT_RADIUS) / (RIGHT_RADIUS + LEFT_RADIUS);
@@ -209,6 +239,10 @@ void Free_Wheel::process_data()
     robostate.twist.vx = vx;
     robostate.twist.vy = vy;
     robostate.twist.w = omega;
+
+    imu.roll = roll;
+    imu.pitch = pitch;
+    imu.yaw = theta;
 }
 
 /**
@@ -233,13 +267,15 @@ void send_data()
         free_wheel.process_data();
 
         static uint32_t transmit_tick;
-        if (now - transmit_tick >= 30)
+        if (now - transmit_tick >= 10)
         {
             free_wheel.sending_bytes[0] = START_BYTE;
-            memcpy(free_wheel.sending_bytes + 1, (uint8_t *)(&free_wheel.robostate), sizeof(Robostate));
-            free_wheel.sending_bytes[sizeof(Robostate) + 1] = crc.get_Hash((uint8_t *)(free_wheel.sending_bytes + 1), sizeof(Robostate));
 
-            HAL_UART_Transmit_DMA(&huart2, free_wheel.sending_bytes, sizeof(Robostate) + 2);
+            memcpy(free_wheel.sending_bytes + 1, (uint8_t *)(&free_wheel.robostate), sizeof(Robostate));
+            memcpy(free_wheel.sending_bytes + 1 + sizeof(Robostate),(uint8_t *)(&imu), sizeof(Imu_data));
+            free_wheel.sending_bytes[sizeof(Robostate) + sizeof(Imu_data)+ 1] = crc.get_Hash((uint8_t *)(free_wheel.sending_bytes + 1), sizeof(Robostate)+ sizeof(Imu_data));
+
+            HAL_UART_Transmit_DMA(&huart2, free_wheel.sending_bytes, sizeof(Robostate) + sizeof(Imu_data)+ 2);
             transmit_tick = now;
 
             printf("count yaw: %ld %ld %ld %f\n", total_back_count, total_right_count, total_left_count, free_wheel.robostate.pose.theta * 180/M_PI);

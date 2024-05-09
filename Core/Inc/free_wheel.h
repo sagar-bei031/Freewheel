@@ -84,6 +84,19 @@ struct Robostate
 };
 
 /**
+ * @brief Structure for storing Bno data
+*/
+struct Imu_data
+{
+    float32_t yaw = 0.0f;
+    float32_t pitch = 0.0f;
+    float32_t roll = 0.0f;
+    float32_t accel_x = 0.0f;
+    float32_t accel_y = 0.0f;
+    float32_t accel_z = 0.0f;
+};
+
+/**
  * @brief Class for controlling a robot with free wheels.
  */
 class Free_Wheel
@@ -134,9 +147,11 @@ public:
     float32_t x = 0.0f;     /**< X-coordinate (meter) of the robot. */
     float32_t y = 0.0f;     /**< Y-coordinate (meter) of the robot. */
     float32_t theta = 0.0f; /**< Orientation (yaw angle in radians) of the robot. */
+    float32_t pitch = 0.0f;
+    float32_t roll = 0.0f;
 
     // start_byte:1, x:4, y:4, theta:4, vx:4, vy:4, omega:4, back_count:4, right_count:4, left_count:4, crc:1
-    uint8_t sending_bytes[sizeof(Robostate)+2]; /**< Buffer for storing data to be transmitted. */
+    uint8_t sending_bytes[sizeof(Robostate)+sizeof(Imu_data)+2]; /**< Buffer for storing data to be transmitted. */
 };
 #endif
 
