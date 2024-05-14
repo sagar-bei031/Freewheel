@@ -2,6 +2,9 @@
     "files.associations": {
         "cmath": "cpp",
         "cstdio": "cpp",
-        "cstdint": "cpp"
+        "cstdint": "cpp",
+        "usbd_cdc_if.h": "c",
+        "gpio.h": "c",
+        "main.h": "c"
     }
 }

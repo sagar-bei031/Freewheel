@@ -10,6 +10,7 @@
 #include <memory.h>
 #include <stdio.h>
 #include "arm_math.h"
+#include "usbd_cdc_if.h"
 #include "gpio.h"
 #include "usart.h"
 #include "tim.h"
@@ -185,7 +186,7 @@ void Free_Wheel::process_data()
     }
 
     float32_t dx = (right_dist * LEFT_RADIUS + left_dist * RIGHT_RADIUS) / (LEFT_RADIUS + RIGHT_RADIUS);
-    float32_t dy = back_dist + BACK_RADIUS * d_theta;
+    float32_t dy = back_dist - BACK_RADIUS * d_theta;
 
     float32_t theta_t = angleClamp(theta + d_theta / 2.0f);
     float32_t cos_value = arm_cos_f32(theta_t);
@@ -198,7 +199,7 @@ void Free_Wheel::process_data()
 
     float32_t omega = (right_vel - left_vel) / (RIGHT_RADIUS + LEFT_RADIUS);
     float32_t vx = (right_vel * LEFT_RADIUS + left_vel * RIGHT_RADIUS) / (RIGHT_RADIUS + LEFT_RADIUS);
-    float32_t vy = back_vel + omega * BACK_RADIUS;
+    float32_t vy = back_vel - omega * BACK_RADIUS;
 
     robostate.pose.x = x;
     robostate.pose.y = y;
@@ -237,9 +238,11 @@ void send_data()
             memcpy(free_wheel.sending_bytes + 1, (uint8_t *)(&free_wheel.robostate), sizeof(Robostate));
             free_wheel.sending_bytes[sizeof(Robostate) + 1] = crc.get_Hash((uint8_t *)(free_wheel.sending_bytes + 1), sizeof(Robostate));
 
-            HAL_UART_Transmit_DMA(&huart2, free_wheel.sending_bytes, sizeof(Robostate) + 2);
+            // HAL_UART_Transmit_DMA(&huart2, free_wheel.sending_bytes, sizeof(Robostate) + 2);
+            CDC_Transmit_FS(free_wheel.sending_bytes, sizeof(Robostate) + 2);
             transmit_tick = now;
 
+            HAL_GPIO_TogglePin(YELLOW_LED_GPIO_Port, YELLOW_LED_Pin);
             // printf("count yaw: %ld %ld %ld %f\n", total_back_count, total_right_count, total_left_count, free_wheel.robostate.pose.theta * 180/M_PI);
         }
     }
