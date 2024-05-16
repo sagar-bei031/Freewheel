@@ -50,11 +50,20 @@
 /**
  * @brief Structure representing the pose (position and orientation) of the robot.
  */
+
+#pragma pack(push, 1)
 struct Pose
 {
     float32_t x;     /**< X-coordinate. */
     float32_t y;     /**< Y-coordinate. */
     float32_t theta; /**< Orientation (angle in radians). */
+};
+
+struct YawPitchRoll
+{
+    float32_t yaw;
+    float32_t pitch;
+    float32_t roll;
 };
 
 /**
@@ -74,14 +83,13 @@ struct EncoderCount
     int32_t left;
 };
 
-/**
- * @brief Structure representing the state of the robot.
- */
-struct Robostate
+struct FreeWheelData
 {
-    Pose pose;   /**< Robot pose. */
-    Twist twist; /**< Robot twist. */
+    Pose pose;
+    Twist twist;
+    YawPitchRoll imu;
 };
+#pragma pack(pop)
 
 /**
  * @brief Class for controlling a robot with free wheels.
@@ -115,28 +123,22 @@ public:
     void process_data();
 
     Bno08 bno{&huart1};
-    Robostate robostate; /**< Robot position and twist. */
+    FreeWheelData free_wheel_data{0, 0, 0, 0, 0, 0, 0, 0, 0};
 
     Encoder back_enc{&htim3, CPR};  /**< Encoder for the back wheel. */
     Encoder right_enc{&htim1, CPR}; /**< Encoder for the right wheel. */
     Encoder left_enc{&htim2, CPR};  /**< Encoder for the left wheel. */
 
-    int32_t back_count; /**< Count from the back wheel encoder. */
+    int32_t back_count;  /**< Count from the back wheel encoder. */
     int32_t right_count; /**< Count from the right wheel encoder. */
-    int32_t left_count; /**< Count from the left wheel encoder. */
+    int32_t left_count;  /**< Count from the left wheel encoder. */
 
     // with respect to robot itself
-    float32_t back_omega; /**< Angular velocity of the back wheel. */
+    float32_t back_omega;  /**< Angular velocity of the back wheel. */
     float32_t right_omega; /**< Angular velocity of the right wheel. */
-    float32_t left_omega; /**< Angular velocity of the left wheel. */
+    float32_t left_omega;  /**< Angular velocity of the left wheel. */
 
-    // with respect to gamefield
-    float32_t x = 0.0f;     /**< X-coordinate (meter) of the robot. */
-    float32_t y = 0.0f;     /**< Y-coordinate (meter) of the robot. */
-    float32_t theta = 0.0f; /**< Orientation (yaw angle in radians) of the robot. */
-
-    // start_byte:1, x:4, y:4, theta:4, vx:4, vy:4, omega:4, back_count:4, right_count:4, left_count:4, crc:1
-    uint8_t sending_bytes[sizeof(Robostate)+2]; /**< Buffer for storing data to be transmitted. */
+    uint8_t sending_bytes[sizeof(free_wheel_data) + 2]; /**< Buffer for storing data to be transmitted. */
 };
 #endif
 
@@ -146,7 +148,7 @@ extern "C"
 #endif
     /**
      * @brief Send data from the Free_Wheel object.
-     * 
+     *
      * It uses free_wheel object to read, process and send data.
      * It joins c program with cpp.
      * It is called in main.

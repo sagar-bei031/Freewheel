@@ -24,7 +24,6 @@ struct BnoData
     uint8_t rsvd;
     uint8_t csum;
 };
-#pragma pack(pop)
 
 struct ImuData
 {
@@ -35,6 +34,7 @@ struct ImuData
     float accel_y;
     float accel_z;
 };
+#pragma pack(pop)
 
 class Bno08
 {
