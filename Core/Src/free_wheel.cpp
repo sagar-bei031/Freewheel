@@ -267,7 +267,7 @@ void send_data()
         free_wheel.process_data();
 
         static uint32_t transmit_tick;
-        if (now - transmit_tick >= 10)
+        if (now - transmit_tick >= 30)
         {
             free_wheel.sending_bytes[0] = START_BYTE;
 
@@ -335,3 +335,5 @@ float32_t angleClamp(float32_t angle)
     }
     return angle;
 }
+
+ 
