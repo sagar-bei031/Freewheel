@@ -87,7 +87,7 @@ struct FreeWheelData
 {
     Pose pose;
     Twist twist;
-    YawPitchRoll imu;
+    Bno08::ImuData imu;
 };
 #pragma pack(pop)
 
@@ -123,7 +123,7 @@ public:
     void process_data();
 
     Bno08 bno{&huart1};
-    FreeWheelData free_wheel_data{0, 0, 0, 0, 0, 0, 0, 0, 0};
+    FreeWheelData free_wheel_data{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
     Encoder back_enc{&htim3, CPR};  /**< Encoder for the back wheel. */
     Encoder right_enc{&htim1, CPR}; /**< Encoder for the right wheel. */

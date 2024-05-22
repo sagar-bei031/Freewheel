@@ -59,9 +59,9 @@ Bno08::BnoRecvStatus Bno08::receive()
 
 void Bno08::parseImuData()
 {
-    data.yaw = -static_cast<float>(buffer.yaw / 100) + 0.01f * static_cast<float>(buffer.yaw % 100);
-    data.pitch = static_cast<float>(buffer.pitch / 100) + 0.01f * static_cast<float>(buffer.pitch % 100);
-    data.roll = static_cast<float>(buffer.roll / 100) + 0.01f * static_cast<float>(buffer.roll % 100);
+    data.yaw = -buffer.yaw * 0.01f;
+    data.pitch = buffer.roll * 0.01f;
+    data.roll = buffer.pitch * 0.01f;
     data.accel_x = buffer.accel_x * _g / 1000;
     data.accel_y = buffer.accel_y * _g / 1000;
     data.accel_z = buffer.accel_z * _g / 1000;

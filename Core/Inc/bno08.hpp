@@ -25,15 +25,6 @@ struct BnoData
     uint8_t csum;
 };
 
-struct ImuData
-{
-    float yaw;
-    float pitch;
-    float roll;
-    float accel_x;
-    float accel_y;
-    float accel_z;
-};
 #pragma pack(pop)
 
 class Bno08
@@ -47,6 +38,16 @@ public:
         CHECKSUM_ERROR
     };
 
+    struct ImuData
+    {
+        float yaw;
+        float pitch;
+        float roll;
+        float accel_x;
+        float accel_y;
+        float accel_z;
+    };
+
     UART_HandleTypeDef *huart;
     BnoData buffer;
     ImuData data;
@@ -54,7 +55,7 @@ public:
     uint32_t lastReceive;
 
     Bno08() : huart(nullptr) {}
-    Bno08(UART_HandleTypeDef *_huart): huart(_huart) {}
+    Bno08(UART_HandleTypeDef *_huart) : huart(_huart) {}
     ~Bno08() = default;
 
     void init();

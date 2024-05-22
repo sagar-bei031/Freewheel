@@ -41,6 +41,10 @@ float32_t &imu_yaw = free_wheel.free_wheel_data.imu.yaw;     /**< Yaw angle in r
 float32_t &imu_pitch = free_wheel.free_wheel_data.imu.pitch; /**< Pitch angle in radians. */
 float32_t &imu_roll = free_wheel.free_wheel_data.imu.roll;   /**< Roll angle in radians. */
 
+float32_t &ax = free_wheel.free_wheel_data.imu.accel_x; /**< Acceleration in x-direction (m/s^2). */
+float32_t &ay = free_wheel.free_wheel_data.imu.accel_y; /**< Acceleration in y-direction (m/s^2). */
+float32_t &az = free_wheel.free_wheel_data.imu.accel_z; /**< Acceleration in z-direction (m/s^2). */
+
 float32_t cur_imu_yaw;
 float32_t cur_imu_pitch;
 float32_t cur_imu_roll;
@@ -74,20 +78,20 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     if (huart->Instance == free_wheel.bno.huart->Instance)
     {
         // uint32_t last_receive = free_wheel.bno.lastReceive;
-        if (free_wheel.bno.receive() == Bno08::BnoRecvStatus::CHECKSUM_MATCHED)
-        {
-            cur_imu_yaw = free_wheel.bno.data.yaw * M_PI / 180;
-            cur_imu_pitch = free_wheel.bno.data.pitch * M_PI / 180;
-            cur_imu_roll = free_wheel.bno.data.roll * M_PI / 180;
-            // printf("imu: %lu %f %f %f %f %f %f\n",
-            //        now - last_receive,
-            //        free_wheel.bno.data.yaw,
-            //        free_wheel.bno.data.pitch,
-            //        free_wheel.bno.data.roll,
-            //        free_wheel.bno.data.accel_x,
-            //        free_wheel.bno.data.accel_y,
-            //        free_wheel.bno.data.accel_z);
-        }
+        // if (
+        free_wheel.bno.receive();
+        //  == Bno08::BnoRecvStatus::CHECKSUM_MATCHED)
+        // {
+
+        // printf("imu: %lu %f %f %f %f %f %f\n",
+        //        now - last_receive,
+        //        free_wheel.bno.data.yaw,
+        //        free_wheel.bno.data.pitch,
+        //        free_wheel.bno.data.roll,
+        //        free_wheel.bno.data.accel_x,
+        //        free_wheel.bno.data.accel_y,
+        //        free_wheel.bno.data.accel_z);
+        // }
     }
 }
 
@@ -154,6 +158,17 @@ void Free_Wheel::read_data()
     back_enc.reset_encoder_count();
     right_enc.reset_encoder_count();
     left_enc.reset_encoder_count();
+
+    if (bno.isConnected())
+    {
+        cur_imu_yaw = free_wheel.bno.data.yaw * M_PI / 180;
+        cur_imu_pitch = free_wheel.bno.data.pitch * M_PI / 180;
+        cur_imu_roll = free_wheel.bno.data.roll * M_PI / 180;
+
+        ax = free_wheel.bno.data.accel_x;
+        ay = free_wheel.bno.data.accel_y;
+        az = free_wheel.bno.data.accel_z;
+    }
 }
 
 /**
@@ -186,7 +201,6 @@ void Free_Wheel::process_data()
             imu_yaw = angleClamp(imu_yaw + d_imu_yaw);
             imu_pitch = angleClamp(imu_pitch + d_imu_pitch);
             imu_roll = angleClamp(imu_roll + d_imu_roll);
-
 
             if (now - board_led_tick > 20)
             {
@@ -227,8 +241,6 @@ void Free_Wheel::process_data()
     omega = (right_vel - left_vel) / (RIGHT_RADIUS + LEFT_RADIUS);
     vx = (right_vel * LEFT_RADIUS + left_vel * RIGHT_RADIUS) / (RIGHT_RADIUS + LEFT_RADIUS);
     vy = back_vel - omega * BACK_RADIUS;
-
-    // printf("imu_yaw: %lf\n", free_wheel.free_wheel_data.imu.yaw);
 }
 
 /**
@@ -265,6 +277,11 @@ void send_data()
 #else
             HAL_UART_Transmit_DMA(&huart2, free_wheel.sending_bytes, sizeof(free_wheel.free_wheel_data) + 2);
 #endif
+            // printf("x:%f y:%f theta:%f vx:%f vy:%f w:%f yaw:%f pitch:%f roll:%f ax:%f ay:%f az:%f\n",
+            // free_wheel.free_wheel_data.pose.x, free_wheel.free_wheel_data.pose.y, free_wheel.free_wheel_data.pose.theta,
+            // free_wheel.free_wheel_data.twist.vx, free_wheel.free_wheel_data.twist.vy, free_wheel.free_wheel_data.twist.w,
+            // free_wheel.free_wheel_data.imu.yaw, free_wheel.free_wheel_data.imu.pitch, free_wheel.free_wheel_data.imu.roll,
+            // free_wheel.free_wheel_data.imu.accel_x, free_wheel.free_wheel_data.imu.accel_y, free_wheel.free_wheel_data.imu.accel_z);
 
             transmit_tick = now;
         }
