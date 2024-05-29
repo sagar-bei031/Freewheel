@@ -5,6 +5,7 @@
         "cstdint": "cpp",
         "usbd_cdc_if.h": "c",
         "gpio.h": "c",
-        "main.h": "c"
+        "main.h": "c",
+        "stm32f1xx_ll_bus.h": "c"
     }
 }

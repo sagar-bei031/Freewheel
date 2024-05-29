@@ -124,7 +124,14 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
  */
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 {
-    HAL_GPIO_TogglePin(YELLOW_LED_GPIO_Port, YELLOW_LED_Pin);
+    static uint32_t yellow_led_tick = 0;
+    uint32_t now = HAL_GetTick();
+
+    if (now - yellow_led_tick > 20)
+    {
+        HAL_GPIO_TogglePin(YELLOW_LED_GPIO_Port, YELLOW_LED_Pin);
+        yellow_led_tick = now;
+    }
 }
 
 /**
@@ -265,7 +272,7 @@ void send_data()
         free_wheel.process_data();
 
         static uint32_t transmit_tick;
-        if (now - transmit_tick >= 30)
+        if (now - transmit_tick >= 10)
         {
             free_wheel.sending_bytes[0] = START_BYTE;
             memcpy(free_wheel.sending_bytes + 1, (uint8_t *)(&free_wheel.free_wheel_data), sizeof(free_wheel.free_wheel_data));
@@ -275,7 +282,15 @@ void send_data()
             CDC_Transmit_FS(free_wheel.sending_bytes, sizeof(free_wheel.free_wheel_data) + 2);
             HAL_GPIO_TogglePin(YELLOW_LED_GPIO_Port, YELLOW_LED_Pin);
 #else
-            HAL_UART_Transmit_DMA(&huart2, free_wheel.sending_bytes, sizeof(free_wheel.free_wheel_data) + 2);
+            if (HAL_UART_Transmit_DMA(&huart2, free_wheel.sending_bytes, sizeof(free_wheel.free_wheel_data) + 2) != HAL_OK)
+            {
+                static uint32_t red_led_tick = 0;
+                if (now - red_led_tick > 20)
+                {
+                    HAL_GPIO_TogglePin(RED_LED_GPIO_Port, RED_LED_Pin);
+                    red_led_tick = now;
+                }
+            }
 #endif
             // printf("x:%f y:%f theta:%f vx:%f vy:%f w:%f yaw:%f pitch:%f roll:%f ax:%f ay:%f az:%f\n",
             // free_wheel.free_wheel_data.pose.x, free_wheel.free_wheel_data.pose.y, free_wheel.free_wheel_data.pose.theta,

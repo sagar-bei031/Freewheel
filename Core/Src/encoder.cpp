@@ -12,7 +12,7 @@ int32_t Encoder::get_count()
 float32_t Encoder::get_omega()
 {
   int32_t count = get_count();
-  int32_t sample_time = HAL_GetTick() - last_reset_time;
+  uint32_t sample_time = HAL_GetTick() - last_reset_time;
   float32_t omega = 2.0f * (float32_t)PI * (float32_t)count / (float32_t)(cpr * sample_time) * 1000.0f;
   return omega;
 }
