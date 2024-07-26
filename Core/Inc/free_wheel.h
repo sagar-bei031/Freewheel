@@ -20,17 +20,17 @@
 /**
  * @brief Radius of the back wheel in meter.
  */
-#define BACK_RADIUS 0.135f
+#define MID_RADIUS 0.036f
 
 /**
  * @brief Radius of the right wheel in meter.
  */
-#define RIGHT_RADIUS 0.245f
+#define RIGHT_RADIUS 0.225f
 
 /**
  * @brief Radius of the left wheel in meter.
  */
-#define LEFT_RADIUS 0.225f
+#define LEFT_RADIUS 0.233f
 
 /**
  * @brief Diameter of the wheels in meter.
@@ -78,7 +78,7 @@ struct Twist
 
 struct EncoderCount
 {
-    int32_t back;
+    int32_t mid;
     int32_t right;
     int32_t left;
 };
@@ -94,6 +94,7 @@ struct FreeWheelData
 /**
  * @brief Class for controlling a robot with free wheels.
  */
+
 class Free_Wheel
 {
 public:
@@ -125,16 +126,16 @@ public:
     Bno08 bno{&huart1};
     FreeWheelData free_wheel_data{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-    Encoder back_enc{&htim3, CPR};  /**< Encoder for the back wheel. */
+    Encoder mid_enc{&htim3, CPR};  /**< Encoder for the back wheel. */
     Encoder right_enc{&htim1, CPR}; /**< Encoder for the right wheel. */
     Encoder left_enc{&htim2, CPR};  /**< Encoder for the left wheel. */
 
-    int32_t back_count;  /**< Count from the back wheel encoder. */
+    int32_t mid_count;  /**< Count from the back wheel encoder. */
     int32_t right_count; /**< Count from the right wheel encoder. */
     int32_t left_count;  /**< Count from the left wheel encoder. */
 
     // with respect to robot itself
-    float32_t back_omega;  /**< Angular velocity of the back wheel. */
+    float32_t mid_omega;  /**< Angular velocity of the back wheel. */
     float32_t right_omega; /**< Angular velocity of the right wheel. */
     float32_t left_omega;  /**< Angular velocity of the left wheel. */
 

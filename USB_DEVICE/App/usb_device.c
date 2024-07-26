@@ -66,28 +66,21 @@ USBD_HandleTypeDef hUsbDeviceFS;
 void MX_USB_DEVICE_Init(void)
 {
   /* USER CODE BEGIN USB_DEVICE_Init_PreTreatment */
-GPIO_InitTypeDef GPIO_InitStruct = { 0 };
+  /* Rendering hardware reset harmless (no need to replug USB cable): */
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
 
-HAL_GPIO_WritePin(USB_DM_GPIO_Port, USB_DM_Pin, GPIO_PIN_RESET);
-HAL_GPIO_WritePin(USB_DP_GPIO_Port, USB_DP_Pin, GPIO_PIN_RESET);
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_12, GPIO_PIN_RESET);
 
-GPIO_InitStruct.Pin = USB_DM_Pin | USB_DP_Pin;
-GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
-GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_HIGH;
-HAL_GPIO_Init(USB_DM_GPIO_Port, &GPIO_InitStruct);
+  /*Configure GPIO pin : PA12, a.k.a. USB_DP */
+  GPIO_InitStruct.Pin = GPIO_PIN_12;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-GPIO_InitStruct.Pin = USB_DP_Pin;
-GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
-GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_HIGH;
-GPIO_InitStruct.Pull = LL_GPIO_OUTPUT_PUSHPULL;
-HAL_GPIO_Init(USB_DP_GPIO_Port, &GPIO_InitStruct);
-
-HAL_Delay(5);
-
-GPIO_InitStruct.Pin = USB_DP_Pin;
-GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
-GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_HIGH;
-HAL_GPIO_Init(USB_DP_GPIO_Port, &GPIO_InitStruct);
+  HAL_Delay(5);
+  /* Hardware reset rendered harmless! */
   /* USER CODE END USB_DEVICE_Init_PreTreatment */
 
   /* Init Device Library, add supported class and start the library. */

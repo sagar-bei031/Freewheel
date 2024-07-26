@@ -24,7 +24,7 @@
 
 Free_Wheel free_wheel;
 
-int32_t total_back_count = 0;
+int32_t total_mid_count = 0;
 int32_t total_right_count = 0;
 int32_t total_left_count = 0;
 
@@ -140,7 +140,7 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 void Free_Wheel::init()
 {
     bno.init();
-    back_enc.init();
+    mid_enc.init();
     right_enc.init();
     left_enc.init();
 }
@@ -150,19 +150,19 @@ void Free_Wheel::init()
  */
 void Free_Wheel::read_data()
 {
-    back_count = -back_enc.get_count();
-    right_count = -right_enc.get_count();
-    left_count = left_enc.get_count();
+    mid_count = -mid_enc.get_count();
+    right_count = right_enc.get_count();
+    left_count = -left_enc.get_count();
 
-    total_back_count += back_count;
+    total_mid_count += mid_count;
     total_right_count += right_count;
     total_left_count += left_count;
 
-    back_omega = -back_enc.get_omega();
+    mid_omega = -mid_enc.get_omega();
     right_omega = -right_enc.get_omega();
     left_omega = left_enc.get_omega();
 
-    back_enc.reset_encoder_count();
+    mid_enc.reset_encoder_count();
     right_enc.reset_encoder_count();
     left_enc.reset_encoder_count();
 
@@ -176,6 +176,8 @@ void Free_Wheel::read_data()
         ay = free_wheel.bno.data.accel_y;
         az = free_wheel.bno.data.accel_z;
     }
+
+    // printf("cnt: %ld %ld %ld\n", total_mid_count, total_right_count, total_left_count);
 }
 
 /**
@@ -186,16 +188,16 @@ void Free_Wheel::process_data()
 {
     uint32_t now = HAL_GetTick();
 
-    float32_t back_dist = F32_PI * Wheel_Diameter * (float32_t)back_count / (float)CPR;
+    float32_t mid_dist = F32_PI * Wheel_Diameter * (float32_t)mid_count / (float)CPR;
     float32_t right_dist = F32_PI * Wheel_Diameter * (float32_t)right_count / (float32_t)CPR;
     float32_t left_dist = F32_PI * Wheel_Diameter * (float32_t)left_count / (float32_t)CPR;
 
-    float32_t back_vel = back_omega * Wheel_Diameter / 2.0f;
+    float32_t mid_vel = mid_omega * Wheel_Diameter / 2.0f;
     float32_t right_vel = right_omega * Wheel_Diameter / 2.0f;
     float32_t left_vel = left_omega * Wheel_Diameter / 2.0f;
 
-    float32_t d_theta = (right_dist - left_dist) / (LEFT_RADIUS + RIGHT_RADIUS);
-
+    // float32_t d_theta = (right_dist - left_dist) / (LEFT_RADIUS + RIGHT_RADIUS);
+    float32_t d_theta = 0; 
     if (bno.isConnected())
     {
         if (is_imu_ready)
@@ -235,7 +237,7 @@ void Free_Wheel::process_data()
     }
 
     float32_t dx = (right_dist * LEFT_RADIUS + left_dist * RIGHT_RADIUS) / (LEFT_RADIUS + RIGHT_RADIUS);
-    float32_t dy = back_dist - BACK_RADIUS * d_theta;
+    float32_t dy = mid_dist - MID_RADIUS * d_theta;
 
     float32_t theta_t = angleClamp(theta + d_theta / 2.0f);
     float32_t cos_value = arm_cos_f32(theta_t);
@@ -247,7 +249,7 @@ void Free_Wheel::process_data()
 
     omega = (right_vel - left_vel) / (RIGHT_RADIUS + LEFT_RADIUS);
     vx = (right_vel * LEFT_RADIUS + left_vel * RIGHT_RADIUS) / (RIGHT_RADIUS + LEFT_RADIUS);
-    vy = back_vel - omega * BACK_RADIUS;
+    vy = mid_vel - omega * MID_RADIUS;
 }
 
 /**
