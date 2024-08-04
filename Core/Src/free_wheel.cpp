@@ -22,6 +22,10 @@
 #define F32_PI 3.14159265358979f
 #define F32_PI_2 1.57079632679489f
 
+#define x_error_per_meter 0.0f
+#define y_error_per_meter 0.0f
+#define theta_error_per_radian 0.0f 
+
 Free_Wheel free_wheel;
 
 int32_t total_back_count = 0;
@@ -151,8 +155,8 @@ void Free_Wheel::init()
 void Free_Wheel::read_data()
 {
     back_count = -back_enc.get_count();
-    right_count = -right_enc.get_count();
-    left_count = left_enc.get_count();
+    right_count = right_enc.get_count();
+    left_count = -left_enc.get_count();
 
     total_back_count += back_count;
     total_right_count += right_count;
@@ -176,6 +180,8 @@ void Free_Wheel::read_data()
         ay = free_wheel.bno.data.accel_y;
         az = free_wheel.bno.data.accel_z;
     }
+
+    // printf("cnt: %ld %ld %ld\n", total_back_count, total_right_count, total_left_count);
 }
 
 /**
@@ -241,9 +247,10 @@ void Free_Wheel::process_data()
     float32_t cos_value = arm_cos_f32(theta_t);
     float32_t sin_value = arm_sin_f32(theta_t);
 
-    x += dx * cos_value - dy * sin_value;
-    y += dx * sin_value + dy * cos_value;
-    theta = angleClamp(theta + d_theta);
+    x += dx * cos_value - dy * sin_value - x_error_per_meter * dx;
+    y += dx * sin_value + dy * cos_value - y_error_per_meter * dy;
+    theta = angleClamp(theta + d_theta) - theta_error_per_radian * d_theta;
+
 
     omega = (right_vel - left_vel) / (RIGHT_RADIUS + LEFT_RADIUS);
     vx = (right_vel * LEFT_RADIUS + left_vel * RIGHT_RADIUS) / (RIGHT_RADIUS + LEFT_RADIUS);

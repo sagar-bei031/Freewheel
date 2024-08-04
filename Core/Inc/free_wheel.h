@@ -20,17 +20,17 @@
 /**
  * @brief Radius of the back wheel in meter.
  */
-#define BACK_RADIUS 0.135f
+#define BACK_RADIUS 0.036f
 
 /**
  * @brief Radius of the right wheel in meter.
  */
-#define RIGHT_RADIUS 0.245f
+#define RIGHT_RADIUS 0.225f
 
 /**
  * @brief Radius of the left wheel in meter.
  */
-#define LEFT_RADIUS 0.225f
+#define LEFT_RADIUS 0.233f
 
 /**
  * @brief Diameter of the wheels in meter.
