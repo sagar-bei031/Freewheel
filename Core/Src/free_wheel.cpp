@@ -181,7 +181,7 @@ void Free_Wheel::read_data()
         az = free_wheel.bno.data.accel_z;
     }
 
-    // printf("cnt: %ld %ld %ld\n", total_back_count, total_right_count, total_left_count);
+    // printf("cnt: %ld %ld %ld\n", total_back_count, total_right_count, totAl_left_count);
 }
 
 /**
