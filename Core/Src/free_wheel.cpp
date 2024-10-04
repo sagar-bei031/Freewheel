@@ -150,9 +150,9 @@ void Free_Wheel::init()
  */
 void Free_Wheel::read_data()
 {
-    mid_count = -mid_enc.get_count();
-    right_count = right_enc.get_count();
-    left_count = -left_enc.get_count();
+    mid_count = -mid_enc.get_count(); // adjust such that left move of robot gives positive count to mid encoder
+    right_count = right_enc.get_count(); // adjust such that forward move gives positive count to right encoder
+    left_count = -left_enc.get_count(); // adjust such that forward move gives positive count to left encoder
 
     total_mid_count += mid_count;
     total_right_count += right_count;
@@ -196,8 +196,8 @@ void Free_Wheel::process_data()
     float32_t right_vel = right_omega * Wheel_Diameter / 2.0f;
     float32_t left_vel = left_omega * Wheel_Diameter / 2.0f;
 
-    // float32_t d_theta = (right_dist - left_dist) / (LEFT_RADIUS + RIGHT_RADIUS);
-    float32_t d_theta = 0; 
+    float32_t d_theta = (right_dist - left_dist) / (LEFT_RADIUS + RIGHT_RADIUS);
+
     if (bno.isConnected())
     {
         if (is_imu_ready)
@@ -206,7 +206,7 @@ void Free_Wheel::process_data()
             float32_t d_imu_pitch = radianChange(cur_imu_pitch, prev_imu_pitch);
             float32_t d_imu_roll = radianChange(cur_imu_roll, prev_imu_roll);
 
-            d_theta = d_imu_yaw;
+            d_theta = 0 * d_theta + 1.0 * d_imu_yaw; // complementary filter 
             imu_yaw = angleClamp(imu_yaw + d_imu_yaw);
             imu_pitch = angleClamp(imu_pitch + d_imu_pitch);
             imu_roll = angleClamp(imu_roll + d_imu_roll);
@@ -237,7 +237,7 @@ void Free_Wheel::process_data()
     }
 
     float32_t dx = (right_dist * LEFT_RADIUS + left_dist * RIGHT_RADIUS) / (LEFT_RADIUS + RIGHT_RADIUS);
-    float32_t dy = mid_dist - MID_RADIUS * d_theta;
+    float32_t dy = mid_dist - MID_RADIUS * d_theta; // (-) for mid encoder at back and (+) for front
 
     float32_t theta_t = angleClamp(theta + d_theta / 2.0f);
     float32_t cos_value = arm_cos_f32(theta_t);
